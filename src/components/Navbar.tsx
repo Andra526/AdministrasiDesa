@@ -6,7 +6,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-md z-\[100] border-b border-slate-100">
+    <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-md z-[100] border-b border-slate-100">
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
         {/* Logo Section */}
         <motion.div 
@@ -47,13 +47,14 @@ const Navbar = () => {
         </button>
       </div>
 
- {/* Mobile Menu Overlay - Hanya muncul jika isOpen = true */}
-      {isOpen && (
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="absolute top-20 left-0 w-full bg-white p-6 flex flex-col gap-6 md:hidden shadow-xl border-b border-slate-100 z-[110]"
-        >
+{/* Mobile Menu Overlay */}
+{isOpen && (
+  <motion.div 
+    initial={{ opacity: 0, y: -20 }}
+    animate={{ opacity: 1, y: 0 }}
+    // Tambahkan z-[110] dan bg-white supaya pasti di depan Hero
+    className="absolute top-20 left-0 w-full bg-white p-6 flex flex-col gap-6 md:hidden shadow-2xl z-[110] border-b border-slate-100"
+  >
           {/* Link Navigasi */}
           <div className="flex flex-col gap-5">
             <a href="#tentang" onClick={() => setIsOpen(false)} className="text-sm font-bold text-slate-700 hover:text-blue-900 transition-colors">Tentang Desa</a>
