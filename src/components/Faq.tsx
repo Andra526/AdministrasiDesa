@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { HelpCircle, ChevronDown, FileCheck } from 'lucide-react';
+import { HelpCircle, ChevronDown, } from 'lucide-react';
 import { useState } from 'react';
 
 const FaqItem = ({ question, answer }: { question: string; answer: string }) => {
