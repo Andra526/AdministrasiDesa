@@ -26,7 +26,7 @@ const Gallery = () => {
               Kecamatan Balapulang merupakan wilayah strategis di Kabupaten Tegal yang dikenal dengan keramahan penduduknya dan potensi ekonomi kerakyatan yang kuat. 
             </p>
             <p className="text-slate-600 leading-relaxed">
-              Balai Desa Balapulang kini bertransformasi menjadi pusat digitalisasi layanan publik, memastikan setiap warga mendapatkan akses administrasi yang modern, cepat, dan transparan sesuai standar **Andra Developer**.
+              Balai Desa Balapulang kini bertransformasi menjadi pusat digitalisasi layanan publik, memastikan setiap warga mendapatkan akses administrasi yang modern, cepat, dan transparan sesuai standar 
             </p>
           </motion.div>
           <div className="p-8 bg-blue-900 rounded-[3rem] text-white shadow-2xl">

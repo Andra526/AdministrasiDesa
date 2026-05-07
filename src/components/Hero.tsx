@@ -14,10 +14,10 @@ const Hero = () => {
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold mb-6">
             <ShieldCheck size={14} /> SISTEM INFORMASI DESA BALAPULANG
           </div>
-          <h2 className="text-5xl md:text-7xl font-black text-slate-900 leading-[1.05] mb-8">
-            Layanan Desa <br/>
+          <h2 className="text-5xl md:text-6xl font-black text-slate-900 leading-[1.05] mb-8">
+            Pelayanan Administrasi <br/>
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-900 to-blue-600">
-              Tanpa Antre.
+              Desa Online
             </span>
           </h2>
           <p className="text-lg text-slate-500 max-w-lg mb-10 leading-relaxed">

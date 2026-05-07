@@ -20,8 +20,8 @@ const Navbar = () => {
             <Landmark className="text-white" size={24} />
           </div>
           <div className="flex flex-col">
-            <span className="font-black text-xl tracking-tighter text-blue-900 leading-none">BALAPULANG</span>
-            <span className="text-[10px] font-bold text-slate-400 tracking-[0.2em] uppercase">Desa Digital</span>
+            <span className="font-black text-xl tracking-tighter text-blue-900 leading-none">DIGIDESA</span>
+            <span className="text-[10px] font-bold text-slate-400 tracking-[0.2em] uppercase">Digitalisasi Administrasi Desa</span>
           </div>
         </motion.div>
 
@@ -52,7 +52,7 @@ const Navbar = () => {
               </div>
             </div>
 
-            <a href="#pelayanan" className="hover:text-blue-900 transition-colors">Layanan</a>
+            <a href="#pelayanan" className="hover:text-blue-900 transition-colors">Kebutuhan Dokumen</a>
             <a href="#lokasi" className="hover:text-blue-900 transition-colors">Lokasi</a>
             <a href="#faq" className="hover:text-blue-900 transition-colors">FAQ</a>
           </div>
@@ -86,16 +86,18 @@ const Navbar = () => {
             
             {/* Menu Surat di Mobile (Langsung Terlihat) */}
             <div className="flex flex-col gap-3 pl-4 border-l-2 border-blue-900">
-              <span className="text-[10px] font-black text-blue-900 uppercase tracking-widest">Pilih Jenis Surat:</span>
-              <a href="#sktm" onClick={() => setIsOpen(false)} className="text-sm font-bold text-slate-500 italic"> - SKTM</a>
-              <a href="#sku" onClick={() => setIsOpen(false)} className="text-sm font-bold text-slate-500 italic"> - Surat Usaha (SKU)</a>
-              <a href="#domisili" onClick={() => setIsOpen(false)} className="text-sm font-bold text-slate-500 italic"> - Domisili</a>
+              <span className="text-[10px] font-black text-blue-900 uppercase tracking-widest">Pelayanan Administratif</span>
+              <a href="#sktm" onClick={() => setIsOpen(false)} className="text-sm font-bold text-slate-500 italic"> - Surat keterangan Tidak Mampu(SKTM)</a>
+              <a href="#sku" onClick={() => setIsOpen(false)} className="text-sm font-bold text-slate-500 italic"> - Surat Keterangan Usaha (SKU)</a>
+              <a href="#skck" onClick={() => setIsOpen(false)} className="text-sm font-bold text-slate-500 italic"> - Surat Keterangan skck </a>
+              <a href="#surat pindah" onClick={() => setIsOpen(false)} className="text-sm font-bold text-slate-500 italic"> - Surat Pindah </a>
             </div>
 
             <a href="#pelayanan" onClick={() => setIsOpen(false)} className="text-sm font-bold text-slate-700">Layanan Publik</a>
             <a href="#lokasi" onClick={() => setIsOpen(false)} className="text-sm font-bold text-slate-700">Lokasi</a>
             <a href="#faq" onClick={() => setIsOpen(false)} className="text-sm font-bold text-slate-700">FAQ</a>
           </div>
+          
 
           <div className="h-[1px] bg-slate-100 w-full" />
 

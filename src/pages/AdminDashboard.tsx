@@ -1,102 +1,69 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
-import { motion } from 'framer-motion';
-import { LogIn, Lock, Mail } from 'lucide-react';
+import { Check, Trash2, Clock } from 'lucide-react';
 
 export const AdminDashboard = () => {
-  const [session, setSession] = useState<any>(null);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [dataSurat, setDataSurat] = useState<any[]>([]);
 
-  // Cek apakah admin sudah login saat halaman dibuka
+  // 1. Ambil Data & Aktifkan Realtime
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-
-    return () => subscription.unsubscribe();
+    fetchSurat();
+    const channel = supabase.channel('realtime-surat')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'pengajuan_surat' }, () => {
+        fetchSurat();
+      }).subscribe();
+    return () => { supabase.removeChannel(channel); };
   }, []);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) alert(error.message);
-    setLoading(false);
+  const fetchSurat = async () => {
+    const { data } = await supabase.from('pengajuan_surat').select('*').order('created_at', { ascending: false });
+    if (data) setDataSurat(data);
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
+  // 2. Fungsi ACC (Update Status)
+  const handleApprove = async (id: string) => {
+    await supabase.from('pengajuan_surat').update({ status: 'Selesai' }).eq('id', id);
   };
 
-  // 1. Tampilan Form Login jika Belum Autentikasi
-  if (!session) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-md bg-white p-10 rounded-[40px] shadow-2xl shadow-blue-900/10 border border-slate-50"
-        >
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-black text-blue-900 tracking-tighter uppercase">Admin Login</h2>
-            <p className="text-slate-400 text-xs font-bold tracking-widest mt-1">Desa Digital Balapulang</p>
-          </div>
+  // 3. Fungsi Hapus (Delete)
+  const handleDelete = async (id: string) => {
+    if (confirm("Hapus data ini?")) {
+      await supabase.from('pengajuan_surat').delete().eq('id', id);
+    }
+  };
 
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-              <input 
-                type="email" 
-                placeholder="Email Admin" 
-                className="w-full pl-12 pr-4 py-4 bg-slate-50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-900 transition-all font-medium"
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
-              <input 
-                type="password" 
-                placeholder="Password" 
-                className="w-full pl-12 pr-4 py-4 bg-slate-50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-900 transition-all font-medium"
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            <button 
-              disabled={loading}
-              className="w-full py-4 bg-blue-900 text-white rounded-2xl font-bold shadow-xl shadow-blue-900/20 hover:bg-blue-800 transition-all flex items-center justify-center gap-2"
-            >
-              <LogIn size={18} /> {loading ? 'Checking...' : 'Masuk Dashboard'}
-            </button>
-          </form>
-        </motion.div>
-      </div>
-    );
-  }
-
-  // 2. Tampilan Dashboard Utama jika Sudah Login (Gunakan kode dashboard sebelumnya di sini)
   return (
-    <div className="min-h-screen bg-slate-50 p-6 pt-28">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-10">
-          <h1 className="text-3xl font-black text-blue-900 uppercase">Panel Admin</h1>
-          <button 
-            onClick={handleLogout}
-            className="px-6 py-2 bg-red-50 text-red-500 rounded-xl font-bold text-sm hover:bg-red-100 transition-all"
-          >
-            Log Out
-          </button>
-        </div>
-        
-        {/* Isi grid kartu pengajuan surat Anda di sini */}
-        
+    <div className="min-h-screen bg-slate-50 p-8 pt-24">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-4xl font-black text-blue-900 uppercase tracking-tighter">Panel Admin</h1>
+        <button onClick={() => supabase.auth.signOut()} className="px-6 py-2 bg-red-100 text-red-600 rounded-full font-bold">Log Out</button>
+      </div>
+
+      <div className="grid gap-4">
+        {dataSurat.map((surat) => (
+          <div key={surat.id} className="bg-white p-6 rounded-[24px] border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-1">
+                <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${surat.status === 'Selesai' ? 'bg-green-100 text-green-600' : 'bg-orange-100 text-orange-600'}`}>
+                  {surat.status}
+                </span>
+                <span className="text-xs text-slate-400 italic">NIK: {surat.nik}</span>
+              </div>
+              <h3 className="text-lg font-bold text-slate-800 uppercase">{surat.nama_lengkap}</h3>
+              <p className="text-sm text-blue-900 font-semibold">{surat.jenis_surat}</p>
+              <p className="text-xs text-slate-500 mt-1">{surat.keperluan}</p>
+            </div>
+
+            <div className="flex gap-2">
+              <button onClick={() => handleApprove(surat.id)} className="p-3 bg-blue-900 text-white rounded-2xl hover:bg-green-600 transition-all shadow-lg shadow-blue-900/10">
+                <Check size={20} />
+              </button>
+              <button onClick={() => handleDelete(surat.id)} className="p-3 bg-slate-100 text-slate-400 rounded-2xl hover:text-red-600 transition-all">
+                <Trash2 size={20} />
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

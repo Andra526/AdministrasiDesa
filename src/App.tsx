@@ -5,6 +5,7 @@
   import Pelayanan from './components/Pelayanan';
   import Lokasi from './components/Lokasi';
   import Faq from './components/Faq';
+  import { SkuForm } from './components/Surat/SkuForm';
 
 
   function App() {
