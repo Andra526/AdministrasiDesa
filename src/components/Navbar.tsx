@@ -1,54 +1,57 @@
 import { Landmark, Menu, X, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom'; // Pastikan import ini ada
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const waNumber = "6288220007296"; // Nomor WA yang kamu berikan
+  const waNumber = "6288220007296";
 
   return (
     <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-md z-[100] border-b border-slate-100">
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
         
         {/* Logo Section */}
-        <motion.div 
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="flex items-center gap-3 cursor-pointer"
-        >
-          <div className="p-2.5 bg-blue-900 rounded-xl shadow-lg shadow-blue-900/20">
-            <Landmark className="text-white" size={24} />
-          </div>
-          <div className="flex flex-col">
-            <span className="font-black text-xl tracking-tighter text-blue-900 leading-none">DIGIDESA</span>
-            <span className="text-[10px] font-bold text-slate-400 tracking-[0.2em] uppercase">Digitalisasi Administrasi Desa</span>
-          </div>
-        </motion.div>
+        <Link to="/">
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="flex items-center gap-3 cursor-pointer"
+          >
+            <div className="p-2.5 bg-blue-900 rounded-xl shadow-lg shadow-blue-900/20">
+              <Landmark className="text-white" size={24} />
+            </div>
+            <div className="flex flex-col">
+              <span className="font-black text-xl tracking-tighter text-blue-900 leading-none">DIGIDESA</span>
+              <span className="text-[10px] font-bold text-slate-400 tracking-[0.2em] uppercase">Digitalisasi Administrasi Desa</span>
+            </div>
+          </motion.div>
+        </Link>
 
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-10">
           <div className="flex gap-8 font-semibold text-slate-500 text-sm uppercase tracking-widest items-center">
             <a href="#tentang" className="hover:text-blue-900 transition-colors">Tentang</a>
             
-            {/* Dropdown Buat Surat Desktop */}
+            {/* Dropdown Buat Surat Desktop - Langsung ke Form */}
             <div className="relative group cursor-pointer">
               <button className="flex items-center gap-1 hover:text-blue-900 transition-colors uppercase tracking-widest text-sm font-semibold">
                 Buat Surat <ChevronDown size={14} />
               </button>
               
               <div className="absolute top-full left-0 w-64 bg-white shadow-2xl rounded-2xl p-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all border border-slate-50 translate-y-2 group-hover:translate-y-0 z-[120]">
-                <a href="#sktm" className="block p-3 hover:bg-blue-50 rounded-xl transition-colors font-bold text-slate-700 hover:text-blue-900">
+                <Link to="/pengajuan?jenis=sktm" className="block p-3 hover:bg-blue-50 rounded-xl transition-colors font-bold text-slate-700 hover:text-blue-900">
                   SKTM
                   <span className="block text-[10px] font-medium text-slate-400 uppercase tracking-tighter">Kesehatan & Pendidikan</span>
-                </a>
-                <a href="#sku" className="block p-3 hover:bg-blue-50 rounded-xl transition-colors font-bold text-slate-700 hover:text-blue-900 border-t border-slate-50">
+                </Link>
+                <Link to="/pengajuan?jenis=sku" className="block p-3 hover:bg-blue-50 rounded-xl transition-colors font-bold text-slate-700 hover:text-blue-900 border-t border-slate-50">
                   Surat Izin Usaha (SKU)
                   <span className="block text-[10px] font-medium text-slate-400 uppercase tracking-tighter">Legalitas UMKM</span>
-                </a>
-                <a href="#domisili" className="block p-3 hover:bg-blue-50 rounded-xl transition-colors font-bold text-slate-700 hover:text-blue-900 border-t border-slate-50">
+                </Link>
+                <Link to="/pengajuan?jenis=umum" className="block p-3 hover:bg-blue-50 rounded-xl transition-colors font-bold text-slate-700 hover:text-blue-900 border-t border-slate-50">
                   Surat Domisili
                   <span className="block text-[10px] font-medium text-slate-400 uppercase tracking-tighter">Keterangan Tinggal</span>
-                </a>
+                </Link>
               </div>
             </div>
 
@@ -84,20 +87,24 @@ const Navbar = () => {
           <div className="flex flex-col gap-5">
             <a href="#tentang" onClick={() => setIsOpen(false)} className="text-sm font-bold text-slate-700">Tentang Desa</a>
             
-            {/* Menu Surat di Mobile (Langsung Terlihat) */}
+            {/* Menu Surat di Mobile - Mengarah ke Form Pengajuan */}
             <div className="flex flex-col gap-3 pl-4 border-l-2 border-blue-900">
               <span className="text-[10px] font-black text-blue-900 uppercase tracking-widest">Pelayanan Administratif</span>
-              <a href="#sktm" onClick={() => setIsOpen(false)} className="text-sm font-bold text-slate-500 italic"> - Surat keterangan Tidak Mampu(SKTM)</a>
-              <a href="#sku" onClick={() => setIsOpen(false)} className="text-sm font-bold text-slate-500 italic"> - Surat Keterangan Usaha (SKU)</a>
-              <a href="#skck" onClick={() => setIsOpen(false)} className="text-sm font-bold text-slate-500 italic"> - Surat Keterangan skck </a>
-              <a href="#surat pindah" onClick={() => setIsOpen(false)} className="text-sm font-bold text-slate-500 italic"> - Surat Pindah </a>
+              <Link to="/pengajuan?jenis=sktm" onClick={() => setIsOpen(false)} className="text-sm font-bold text-slate-500 italic hover:text-blue-900 transition-all"> 
+                - Surat Keterangan Tidak Mampu (SKTM)
+              </Link>
+              <Link to="/pengajuan?jenis=sku" onClick={() => setIsOpen(false)} className="text-sm font-bold text-slate-500 italic hover:text-blue-900 transition-all"> 
+                - Surat Keterangan Usaha (SKU)
+              </Link>
+              <Link to="/pengajuan?jenis=umum" onClick={() => setIsOpen(false)} className="text-sm font-bold text-slate-500 italic hover:text-blue-900 transition-all"> 
+                - Surat Domisili (Umum)
+              </Link>
             </div>
 
-            <a href="#pelayanan" onClick={() => setIsOpen(false)} className="text-sm font-bold text-slate-700">Layanan Publik</a>
+            <a href="#pelayanan" onClick={() => setIsOpen(false)} className="text-sm font-bold text-slate-700">Persyaratan Dokumen</a>
             <a href="#lokasi" onClick={() => setIsOpen(false)} className="text-sm font-bold text-slate-700">Lokasi</a>
             <a href="#faq" onClick={() => setIsOpen(false)} className="text-sm font-bold text-slate-700">FAQ</a>
           </div>
-          
 
           <div className="h-[1px] bg-slate-100 w-full" />
 

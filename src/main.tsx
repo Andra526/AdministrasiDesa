@@ -1,10 +1,13 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import AppRouter from './Router' // Memanggil Router.tsx
+import { BrowserRouter } from 'react-router-dom' // Wajib diimport
+import App from './App' // Karena routing sudah di App.tsx
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <AppRouter />
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
   </React.StrictMode>,
 )
