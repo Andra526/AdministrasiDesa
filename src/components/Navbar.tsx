@@ -1,39 +1,66 @@
 import { Landmark, Menu, X, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom'; // Pastikan import ini ada
+import { motion, AnimatePresence } from 'framer-motion';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
   const waNumber = "6288220007296";
+
+  // FUNGSI HANDLE SCROLL UPDATE
+  const handleScroll = (id: string) => {
+    // 1. Tutup menu mobile segera agar tidak menghalangi view
+    setIsOpen(false); 
+
+    const executeScroll = () => {
+      const element = document.getElementById(id);
+      if (element) {
+        // Offset 80px karena navbar kita tingginya h-20 (80px)
+        const yOffset = -80; 
+        const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+        
+        window.scrollTo({ top: y, behavior: 'smooth' });
+      }
+    };
+
+    // 2. Cek apakah user sedang di halaman selain Home
+    if (location.pathname !== '/') {
+      navigate('/');
+      // Beri delay sedikit agar React Router selesai render halaman Home
+      setTimeout(() => {
+        executeScroll();
+      }, 300);
+    } else {
+      // Jika sudah di Home, langsung scroll
+      executeScroll();
+    }
+  };
 
   return (
     <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-md z-[100] border-b border-slate-100">
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
         
-        {/* Logo Section */}
-        <Link to="/">
-          <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="flex items-center gap-3 cursor-pointer"
-          >
+        {/* Logo */}
+        <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+          <div className="flex items-center gap-3 cursor-pointer">
             <div className="p-2.5 bg-blue-900 rounded-xl shadow-lg shadow-blue-900/20">
               <Landmark className="text-white" size={24} />
             </div>
             <div className="flex flex-col">
               <span className="font-black text-xl tracking-tighter text-blue-900 leading-none">DIGIDESA</span>
-              <span className="text-[10px] font-bold text-slate-400 tracking-[0.2em] uppercase">Digitalisasi Administrasi Desa</span>
+              <span className="text-[10px] font-bold text-slate-400 tracking-[0.2em] uppercase whitespace-nowrap">Digitalisasi Administrasi Desa</span>
             </div>
-          </motion.div>
+          </div>
         </Link>
 
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-10">
           <div className="flex gap-8 font-semibold text-slate-500 text-sm uppercase tracking-widest items-center">
-            <a href="#tentang" className="hover:text-blue-900 transition-colors">Tentang</a>
+            <button onClick={() => handleScroll('tentang')} className="hover:text-blue-900 transition-colors">Tentang</button>
             
-            {/* Dropdown Buat Surat Desktop - Langsung ke Form */}
+            {/* Dropdown Buat Surat Desktop */}
             <div className="relative group cursor-pointer">
               <button className="flex items-center gap-1 hover:text-blue-900 transition-colors uppercase tracking-widest text-sm font-semibold">
                 Buat Surat <ChevronDown size={14} />
@@ -55,16 +82,16 @@ const Navbar = () => {
               </div>
             </div>
 
-            <a href="#pelayanan" className="hover:text-blue-900 transition-colors">Kebutuhan Dokumen</a>
-            <a href="#lokasi" className="hover:text-blue-900 transition-colors">Lokasi</a>
-            <a href="#faq" className="hover:text-blue-900 transition-colors">FAQ</a>
+            <button onClick={() => handleScroll('pelayanan')} className="hover:text-blue-900 transition-colors">Dokumen</button>
+            <button onClick={() => handleScroll('lokasi')} className="hover:text-blue-900 transition-colors">Lokasi</button>
+            <button onClick={() => handleScroll('faq')} className="hover:text-blue-900 transition-colors">FAQ</button>
           </div>
 
           <a href={`https://wa.me/${waNumber}`} target="_blank" rel="noopener noreferrer">
             <motion.button 
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-6 py-2.5 bg-blue-900 text-white rounded-full text-sm font-bold shadow-xl shadow-blue-900/20 hover:bg-blue-800 transition-all"
+              className="px-6 py-2.5 bg-blue-900 text-white rounded-full text-sm font-bold shadow-xl shadow-blue-900/20 hover:bg-blue-800"
             >
               Hubungi Kami
             </motion.button>
@@ -72,52 +99,71 @@ const Navbar = () => {
         </div>
 
         {/* Mobile Toggle */}
-        <button className="md:hidden p-2 text-slate-600" onClick={() => setIsOpen(!isOpen)}>
+        <button className="md:hidden p-2 text-slate-600 transition-transform active:scale-90" onClick={() => setIsOpen(!isOpen)}>
           {isOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
       </div>
 
       {/* Mobile Menu Overlay */}
-      {isOpen && (
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="absolute top-20 left-0 w-full bg-white p-6 flex flex-col gap-6 md:hidden shadow-2xl z-[110] border-b border-slate-100"
-        >
-          <div className="flex flex-col gap-5">
-            <a href="#tentang" onClick={() => setIsOpen(false)} className="text-sm font-bold text-slate-700">Tentang Desa</a>
-            
-            {/* Menu Surat di Mobile - Mengarah ke Form Pengajuan */}
-            <div className="flex flex-col gap-3 pl-4 border-l-2 border-blue-900">
-              <span className="text-[10px] font-black text-blue-900 uppercase tracking-widest">Pelayanan Administratif</span>
-              <Link to="/pengajuan?jenis=sktm" onClick={() => setIsOpen(false)} className="text-sm font-bold text-slate-500 italic hover:text-blue-900 transition-all"> 
-                - Surat Keterangan Tidak Mampu (SKTM)
-              </Link>
-              <Link to="/pengajuan?jenis=sku" onClick={() => setIsOpen(false)} className="text-sm font-bold text-slate-500 italic hover:text-blue-900 transition-all"> 
-                - Surat Keterangan Usaha (SKU)
-              </Link>
-              <Link to="/pengajuan?jenis=umum" onClick={() => setIsOpen(false)} className="text-sm font-bold text-slate-500 italic hover:text-blue-900 transition-all"> 
-                - Surat Domisili (Umum)
-              </Link>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="absolute top-20 left-0 w-full bg-white flex flex-col overflow-hidden md:hidden shadow-2xl z-[150] border-b border-slate-100"
+          >
+            <div className="p-6 flex flex-col gap-2">
+              <button 
+                onClick={() => handleScroll('tentang')} 
+                className="w-full text-left p-3 text-sm font-bold text-slate-700 hover:bg-slate-50 rounded-xl transition-all"
+              >
+                Tentang Desa
+              </button>
+              
+              <div className="my-2 flex flex-col gap-2 pl-4 border-l-2 border-blue-900 bg-slate-50/50 p-4 rounded-r-2xl">
+                <span className="text-[10px] font-black text-blue-900 uppercase tracking-widest mb-1">Pelayanan Administratif</span>
+                <Link to="/pengajuan?jenis=sktm" onClick={() => setIsOpen(false)} className="py-1 text-sm font-bold text-slate-500 hover:text-blue-900">- Surat Keterangan (SKTM)</Link>
+                <Link to="/pengajuan?jenis=sku" onClick={() => setIsOpen(false)} className="py-1 text-sm font-bold text-slate-500 hover:text-blue-900">- Surat Izin Usaha (SKU)</Link>
+                <Link to="/pengajuan?jenis=umum" onClick={() => setIsOpen(false)} className="py-1 text-sm font-bold text-slate-500 hover:text-blue-900">- Surat Domisili (Umum)</Link>
+              </div>
+
+              <button 
+                onClick={() => handleScroll('pelayanan')} 
+                className="w-full text-left p-3 text-sm font-bold text-slate-700 hover:bg-slate-50 rounded-xl transition-all"
+              >
+                Persyaratan Dokumen
+              </button>
+
+              <button 
+                onClick={() => handleScroll('lokasi')} 
+                className="w-full text-left p-3 text-sm font-bold text-slate-700 hover:bg-slate-50 rounded-xl transition-all"
+              >
+                Lokasi Kantor
+              </button>
+
+              {/* Fix ID: 'faq' (kecil semua) agar sinkron dengan id di Faq.tsx */}
+              <button 
+                onClick={() => handleScroll('faq')} 
+                className="w-full text-left p-3 text-sm font-bold text-slate-700 hover:bg-slate-50 rounded-xl transition-all"
+              >
+                Tanya Jawab (FAQ)
+              </button>
+
+              <div className="h-[1px] bg-slate-100 w-full my-2" />
+
+              <a href={`https://wa.me/${waNumber}`} target="_blank" rel="noopener noreferrer" className="w-full pb-4 pt-2">
+                <motion.button 
+                  whileTap={{ scale: 0.95 }}
+                  className="w-full py-4 bg-blue-900 text-white rounded-2xl text-sm font-bold shadow-lg shadow-blue-900/20"
+                >
+                  Hubungi Kami (WhatsApp)
+                </motion.button>
+              </a>
             </div>
-
-            <a href="#pelayanan" onClick={() => setIsOpen(false)} className="text-sm font-bold text-slate-700">Persyaratan Dokumen</a>
-            <a href="#lokasi" onClick={() => setIsOpen(false)} className="text-sm font-bold text-slate-700">Lokasi</a>
-            <a href="#faq" onClick={() => setIsOpen(false)} className="text-sm font-bold text-slate-700">FAQ</a>
-          </div>
-
-          <div className="h-[1px] bg-slate-100 w-full" />
-
-          <a href={`https://wa.me/${waNumber}`} target="_blank" rel="noopener noreferrer" className="w-full">
-            <motion.button 
-              whileTap={{ scale: 0.95 }}
-              className="w-full py-4 bg-blue-900 text-white rounded-2xl text-sm font-bold shadow-lg shadow-blue-900/20 active:bg-blue-800 transition-all"
-            >
-              Hubungi Kami (WhatsApp)
-            </motion.button>
-          </a>
-        </motion.div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   );
 };

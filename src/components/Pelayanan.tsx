@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutDashboard, ShieldCheck, Send, X, Info, ArrowRight, FileEdit } from 'lucide-react';
+import { LayoutDashboard, ShieldCheck, Send, X, ArrowRight } from 'lucide-react';
 
 const Pelayanan = () => {
   const [activeInfo, setActiveInfo] = useState<string | null>(null);
@@ -44,18 +44,29 @@ const Pelayanan = () => {
   const currentLayanan = layanan.find(l => l.id === activeInfo);
 
   return (
-    <section id="pelayanan" className="py-16 md:py-28 px-4 md:px-6 bg-[#F8FAFC]">
+    // ID 'pelayanan' sudah terpasang untuk navigasi dari Navbar
+    // scroll-mt-28 memberikan jarak agar judul tidak tertutup Navbar fixed
+    <section id="pelayanan" className="py-16 md:py-28 px-4 md:px-6 bg-[#F8FAFC] scroll-mt-28">
       <div className="max-w-7xl mx-auto text-center mb-12 md:mb-20">
-        <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-4 uppercase tracking-tighter">Kebutuhan Dokumen</h2>
-        <p className="text-slate-500 text-sm md:text-lg max-w-2xl mx-auto">Klik pada kartu untuk melihat daftar persyaratan dokumen yang wajib Anda siapkan.</p>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-4 uppercase tracking-tighter">Kebutuhan Dokumen</h2>
+          <p className="text-slate-500 text-sm md:text-lg max-w-2xl mx-auto">Klik pada kartu untuk melihat daftar persyaratan dokumen yang wajib Anda siapkan.</p>
+        </motion.div>
       </div>
 
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10">
         {layanan.map((item) => (
           <motion.div 
             key={item.id}
-            // FIX SHADOW BARIS 58: Menggunakan soft shadow luxury
-            whileHover={{ y: -12, shadow:"0 25px 50px -12px rgba(0, 0, 0, 0.08)" }}
+            id={`info-${item.id}`} 
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            whileHover={{ y: -12, boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.08)" }}
             whileTap={{ scale: 0.97 }}
             onClick={() => setActiveInfo(item.id)}
             className="p-8 bg-white border border-slate-100 rounded-[2.5rem] transition-all cursor-pointer group relative overflow-hidden shadow-sm"
@@ -63,26 +74,33 @@ const Pelayanan = () => {
             <div className="mb-6 p-5 bg-slate-50 w-fit rounded-3xl group-hover:bg-blue-50 transition-all duration-500">
               {item.icon}
             </div>
-            <h4 className="text-xl md:text-2xl font-bold mb-4 text-slate-800">{item.title}</h4>
-            <p className="text-slate-500 text-sm md:text-base leading-relaxed mb-4">
+            <h4 className="text-xl md:text-2xl font-bold mb-4 text-slate-800 tracking-tight">{item.title}</h4>
+            <p className="text-slate-500 text-sm md:text-base leading-relaxed mb-6">
               {item.desc}
             </p>
-            <div className="flex items-center gap-2 text-blue-600 font-bold text-sm opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="flex items-center gap-2 text-blue-600 font-bold text-sm opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
               Lihat Persyaratan <ArrowRight size={16} />
             </div>
           </motion.div>
         ))}
       </div>
 
+      {/* MODAL POPUP PERSYARATAN */}
       <AnimatePresence>
         {activeInfo && (
           <motion.div 
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }}
             className="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[999] flex items-end md:items-center justify-center p-0 md:p-6"
+            onClick={() => { setActiveInfo(null); window.history.replaceState(null, '', ' '); }}
           >
             <motion.div 
-              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
+              initial={{ y: "100%" }} 
+              animate={{ y: 0 }} 
+              exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
+              onClick={(e) => e.stopPropagation()} 
               className="bg-white rounded-t-[2.5rem] md:rounded-[3rem] w-full max-w-lg relative shadow-2xl overflow-hidden"
             >
               <button 
@@ -98,31 +116,36 @@ const Pelayanan = () => {
                     {currentLayanan?.icon}
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-slate-900">{currentLayanan?.title}</h3>
-                    <p className="text-sm text-slate-500 font-medium">Persyaratan Berkas</p>
+                    <h3 className="text-xl font-bold text-slate-900 leading-tight">{currentLayanan?.title}</h3>
+                    <p className="text-xs text-slate-500 font-medium uppercase tracking-widest mt-1">Syarat Berkas</p>
                   </div>
                 </div>
 
                 <div className="space-y-3 mb-8">
                   {currentLayanan?.syarat.map((s, idx) => (
-                    <div key={idx} className="flex items-center gap-3 text-slate-700 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <motion.div 
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: idx * 0.1 }}
+                      key={idx} 
+                      className="flex items-center gap-3 text-slate-700 bg-slate-50 p-4 rounded-2xl border border-slate-100"
+                    >
                       <div className="w-2 h-2 bg-blue-500 rounded-full shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
                       <span className="text-sm md:text-base font-semibold">{s}</span>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
 
-                {/* INTEGRASI TOMBOL BUAT SURAT: Mengarahkan ke PengajuanSurat berdasarkan ID */}
                 <button 
-  onClick={() => window.location.href = `/pengajuan?jenis=${currentLayanan?.id}`}
-  className="w-full py-5 bg-blue-900 text-white rounded-[1.8rem] font-bold flex items-center justify-center gap-3 hover:bg-blue-800 active:scale-[0.97] transition-all shadow-xl shadow-blue-100"
->
-  Buat Surat Sekarang
-</button>
+                  onClick={() => window.location.href = `/pengajuan?jenis=${currentLayanan?.id}`}
+                  className="w-full py-5 bg-blue-900 text-white rounded-[1.8rem] font-bold flex items-center justify-center gap-3 hover:bg-blue-800 active:scale-[0.97] transition-all shadow-xl shadow-blue-900/20"
+                >
+                  Lanjutkan Buat Surat
+                </button>
 
-                <div className="mt-6 pt-4 border-t border-slate-100">
-                  <p className="text-[10px] text-center text-slate-400 italic leading-relaxed">
-                    Pastikan semua dokumen di atas telah siap dalam bentuk file digital (Foto/PDF) sebelum melanjutkan pengisian.
+                <div className="mt-6 pt-4 border-t border-slate-100 text-center">
+                  <p className="text-[10px] text-slate-400 italic leading-relaxed">
+                    Sistem akan memvalidasi data Anda secara otomatis berdasarkan berkas yang diunggah.
                   </p>
                 </div>
               </div>
