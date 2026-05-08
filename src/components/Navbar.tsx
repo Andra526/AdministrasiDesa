@@ -9,31 +9,36 @@ const Navbar = () => {
   const location = useLocation();
   const waNumber = "6288220007296";
 
-  // FUNGSI HANDLE SCROLL UPDATE
+  // FUNGSI HANDLE SCROLL YANG SUDAH DIPERBAIKI
   const handleScroll = (id: string) => {
-    // 1. Tutup menu mobile segera agar tidak menghalangi view
+    // 1. Tutup menu mobile dulu
     setIsOpen(false); 
 
     const executeScroll = () => {
-      const element = document.getElementById(id);
-      if (element) {
-        // Offset 80px karena navbar kita tingginya h-20 (80px)
-        const yOffset = -80; 
-        const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-        
-        window.scrollTo({ top: y, behavior: 'smooth' });
-      }
+      // 2. BERI DELAY (200ms) - Sangat krusial untuk mobile agar animasi tutup menu selesai dulu
+      setTimeout(() => {
+        const element = document.getElementById(id);
+        if (element) {
+          // Offset ditingkatkan ke -100 agar judul section tidak terlalu mepet navbar
+          const yOffset = -100; 
+          const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+          
+          window.scrollTo({ 
+            top: y, 
+            behavior: 'smooth' 
+          });
+        }
+      }, 200); 
     };
 
-    // 2. Cek apakah user sedang di halaman selain Home
+    // 3. Logika pindah halaman jika sedang tidak di Home
     if (location.pathname !== '/') {
       navigate('/');
-      // Beri delay sedikit agar React Router selesai render halaman Home
+      // Delay lebih lama (400ms) jika harus pindah halaman dulu agar React selesai render
       setTimeout(() => {
         executeScroll();
-      }, 300);
+      }, 400);
     } else {
-      // Jika sudah di Home, langsung scroll
       executeScroll();
     }
   };
@@ -128,6 +133,7 @@ const Navbar = () => {
                 <Link to="/pengajuan?jenis=umum" onClick={() => setIsOpen(false)} className="py-1 text-sm font-bold text-slate-500 hover:text-blue-900">- Surat Domisili (Umum)</Link>
               </div>
 
+              {/* Tombol yang diperbaiki eksekusinya */}
               <button 
                 onClick={() => handleScroll('pelayanan')} 
                 className="w-full text-left p-3 text-sm font-bold text-slate-700 hover:bg-slate-50 rounded-xl transition-all"
@@ -142,7 +148,6 @@ const Navbar = () => {
                 Lokasi Kantor
               </button>
 
-              {/* Fix ID: 'faq' (kecil semua) agar sinkron dengan id di Faq.tsx */}
               <button 
                 onClick={() => handleScroll('faq')} 
                 className="w-full text-left p-3 text-sm font-bold text-slate-700 hover:bg-slate-50 rounded-xl transition-all"
