@@ -1,18 +1,20 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  LayoutDashboard, CheckCircle, Trash2, Calendar, 
-  FileText, Download, FileSpreadsheet, RefreshCw, LogOut,
-  Users, Clock, ChevronRight, Eye
+  CheckCircle, Trash2, Calendar, 
+  FileText, FileSpreadsheet, RefreshCw, LogOut,
+  Clock, ChevronRight, Eye
 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
+import { useNavigate } from 'react-router-dom';
 
 const AdminDashboard = () => {
   const [pengajuan, setPengajuan] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('Semua');
+  const navigate = useNavigate();
 
-  // --- LOGIC SECTION ---
+  // --- 1. LOGIC FETCH DATA & REALTIME ---
   const fetchData = async () => {
     setLoading(true);
     const { data, error } = await supabase
@@ -26,22 +28,41 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     fetchData();
+
+    // Setup Realtime: Mendengarkan INSERT, UPDATE, dan DELETE
     const channel = supabase
       .channel('db-realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'pengajuan_surat' }, () => fetchData())
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'pengajuan_surat' }, 
+        () => fetchData() // Panggil ulang data jika ada perubahan apa pun
+      )
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
   }, []);
 
+  // --- 2. LOGIC ADMIN ACTIONS ---
   const handleUpdateStatus = async (id: string, newStatus: string) => {
-    const { error } = await supabase.from('pengajuan_surat').update({ status: newStatus }).eq('id', id);
+    const { error } = await supabase
+      .from('pengajuan_surat')
+      .update({ status: newStatus })
+      .eq('id', id);
     if (error) alert("Gagal update status!");
+    // Realtime akan otomatis memicu fetchData()
   };
 
   const handleDelete = async (id: string) => {
     if (confirm("Hapus data ini secara permanen?")) {
       await supabase.from('pengajuan_surat').delete().eq('id', id);
+    }
+  };
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (!error) {
+      navigate('/login'); // Kembali ke halaman login
+    } else {
+      alert("Gagal Logout");
     }
   };
 
@@ -55,7 +76,9 @@ const AdminDashboard = () => {
 
   const exportToCSV = () => {
     const headers = "Nama,NIK,Layanan,Status,Tanggal\n";
-    const rows = pengajuan.map(item => `${item.nama_lengkap},${item.nik},${item.jenis_surat},${item.status},${item.created_at}`).join("\n");
+    const rows = pengajuan.map(item => 
+      `${item.nama_lengkap},${item.nik},${item.jenis_surat},${item.status},${item.created_at}`
+    ).join("\n");
     const blob = new Blob([headers + rows], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -66,7 +89,7 @@ const AdminDashboard = () => {
 
   const filteredData = filter === 'Semua' ? pengajuan : pengajuan.filter(item => item.status === filter);
 
-  // Stats Calculation
+  // Stats Calculation (Otomatis update karena memakai state 'pengajuan')
   const stats = [
     { label: 'Total Masuk', value: pengajuan.length, icon: FileText, color: 'text-blue-600', bg: 'bg-blue-50' },
     { label: 'Perlu ACC', value: pengajuan.filter(x => x.status === 'Pending').length, icon: Clock, color: 'text-amber-600', bg: 'bg-amber-50' },
@@ -75,7 +98,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-[#FDFDFD] flex font-sans text-slate-900">
-      {/* Sidebar - Ultra Dark & Sleek */}
+      {/* Sidebar */}
       <aside className="hidden lg:flex w-72 bg-[#0F172A] m-5 rounded-[2.5rem] p-8 flex-col text-white shadow-2xl overflow-hidden relative">
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-blue-500/10 to-transparent pointer-events-none" />
         
@@ -97,14 +120,17 @@ const AdminDashboard = () => {
           </button>
         </nav>
 
-        <button onClick={() => window.location.href = '/'} className="flex items-center gap-3 px-5 py-4 text-slate-500 font-bold hover:text-red-400 transition-all relative z-10 mt-auto">
+        {/* Action Logout */}
+        <button 
+          onClick={handleLogout} 
+          className="flex items-center gap-3 px-5 py-4 text-slate-500 font-bold hover:text-red-400 transition-all relative z-10 mt-auto"
+        >
           <LogOut size={18} /> Logout
         </button>
       </aside>
 
       {/* Main Content */}
       <main className="flex-1 p-6 lg:p-12 overflow-y-auto">
-        {/* Header */}
         <header className="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-10 gap-6">
           <div>
             <div className="flex items-center gap-3 mb-2">
@@ -166,7 +192,7 @@ const AdminDashboard = () => {
                     >
                       <td className="px-8 py-8">
                         <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center text-white font-black group-hover:bg-blue-600 transition-all">
+                          <div className="w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center text-white font-black group-hover:bg-blue-600 transition-all uppercase">
                             {item.nama_lengkap.charAt(0)}
                           </div>
                           <div>
@@ -193,7 +219,7 @@ const AdminDashboard = () => {
                           {item.status}
                         </span>
                       </td>
-                      <td className="px-8 py-8">
+                      <td className="px-8 py-8 text-right">
                         <div className="flex gap-2 justify-end">
                           {item.status === 'Pending' && (
                             <button onClick={() => handleUpdateStatus(item.id, 'ACC')} className="p-3 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-600 hover:text-white transition-all shadow-sm">
