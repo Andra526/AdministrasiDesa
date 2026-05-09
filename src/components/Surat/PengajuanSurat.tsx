@@ -6,6 +6,7 @@ import { StepDataDiri } from './StepDataDiri';
 import { StepUploadBerkas } from './StepUploadBerkas';
 import { StepSelesai } from './StepSelesai';
 
+
 const PengajuanSurat = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -32,6 +33,9 @@ const PengajuanSurat = () => {
     if (jenis === 'sku') setJudulSurat("Surat Keterangan Usaha (SKU)");
     else if (jenis === 'sktm') setJudulSurat("Surat Keterangan Tidak Mampu (SKTM)");
     else if (jenis === 'umum') setJudulSurat("Surat Keterangan Domisili / Umum");
+    else if (jenis === 'skck') setJudulSurat("Surat Keterangan Catatan Kepolisian (SKCK)");
+    else if (jenis === 'anak') setJudulSurat("Surat Urutan Anak / Akta Kelahiran");
+    else if (jenis === 'pindah') setJudulSurat("Surat Keterangan Pindah Domisili"); 
     else setJudulSurat("Pengajuan Surat Online");
   }, [location]);
 

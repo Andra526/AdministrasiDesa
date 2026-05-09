@@ -68,7 +68,7 @@ const Navbar = () => {
             {/* Dropdown Buat Surat Desktop */}
             <div className="relative group cursor-pointer">
               <button className="flex items-center gap-1 hover:text-blue-900 transition-colors uppercase tracking-widest text-sm font-semibold">
-                Buat Surat <ChevronDown size={14} />
+                Pelayan Administrasi <ChevronDown size={14} />
               </button>
               
               <div className="absolute top-full left-0 w-64 bg-white shadow-2xl rounded-2xl p-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all border border-slate-50 translate-y-2 group-hover:translate-y-0 z-[120]">
@@ -80,14 +80,22 @@ const Navbar = () => {
                   Surat Izin Usaha (SKU)
                   <span className="block text-[10px] font-medium text-slate-400 uppercase tracking-tighter">Legalitas UMKM</span>
                 </Link>
-                <Link to="/pengajuan?jenis=umum" className="block p-3 hover:bg-blue-50 rounded-xl transition-colors font-bold text-slate-700 hover:text-blue-900 border-t border-slate-50">
-                  Surat Domisili
+                <Link to="/pengajuan?jenis=pindah" className="block p-3 hover:bg-blue-50 rounded-xl transition-colors font-bold text-slate-700 hover:text-blue-900 border-t border-slate-50">
+                  Surat Pindah
                   <span className="block text-[10px] font-medium text-slate-400 uppercase tracking-tighter">Keterangan Tinggal</span>
+                </Link>
+                <Link to="/pengajuan?jenis=skck" className="block p-3 hover:bg-blue-50 rounded-xl transition-colors font-bold text-slate-700 hover:text-blue-900 border-t border-slate-50">
+                  Surat Keterangan SKCK
+                  <span className="block text-[10px] font-medium text-slate-400 uppercase tracking-tighter">Keterangan Kerja</span>
+                </Link>
+                <Link to="/pengajuan?jenis=anak" className="block p-3 hover:bg-blue-50 rounded-xl transition-colors font-bold text-slate-700 hover:text-blue-900 border-t border-slate-50">
+                  Surat Urutan Anak
+                  <span className="block text-[10px] font-medium text-slate-400 uppercase tracking-tighter">Keterangan Anak</span>
                 </Link>
               </div>
             </div>
 
-            <button onClick={() => handleScroll('pelayanan')} className="hover:text-blue-900 transition-colors">Dokumen</button>
+            <button onClick={() => handleScroll('pelayanan')} className="hover:text-blue-900 transition-colors">Persyaratan Dokumen</button>
             <button onClick={() => handleScroll('lokasi')} className="hover:text-blue-900 transition-colors">Lokasi</button>
             <button onClick={() => handleScroll('faq')} className="hover:text-blue-900 transition-colors">FAQ</button>
           </div>
@@ -131,6 +139,8 @@ const Navbar = () => {
                 <Link to="/pengajuan?jenis=sktm" onClick={() => setIsOpen(false)} className="py-1 text-sm font-bold text-slate-500 hover:text-blue-900">- Surat Keterangan (SKTM)</Link>
                 <Link to="/pengajuan?jenis=sku" onClick={() => setIsOpen(false)} className="py-1 text-sm font-bold text-slate-500 hover:text-blue-900">- Surat Izin Usaha (SKU)</Link>
                 <Link to="/pengajuan?jenis=umum" onClick={() => setIsOpen(false)} className="py-1 text-sm font-bold text-slate-500 hover:text-blue-900">- Surat Domisili (Umum)</Link>
+                <Link to="/pengajuan?jenis=skck" onClick={() => setIsOpen(false)} className="py-1 text-sm font-bold text-slate-500 hover:text-blue-900">- Surat Keterangan SKCK</Link>
+                <Link to="/pengajuan?jenis=anak" onClick={() => setIsOpen(false)} className="py-1 text-sm font-bold text-slate-500 hover:text-blue-900">- Surat Urutan Anak</Link>
               </div>
 
               {/* Tombol yang diperbaiki eksekusinya */}

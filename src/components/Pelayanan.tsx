@@ -8,7 +8,7 @@ const Pelayanan = () => {
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace('#info-', '');
-      if (['sku', 'sktm', 'umum'].includes(hash)) {
+      if (['sku', 'sktm', 'pindah', 'skck', 'anak'].includes(hash)) {
         setActiveInfo(hash);
       }
     };
@@ -23,21 +23,35 @@ const Pelayanan = () => {
       title: "Surat Keterangan Usaha", 
       desc: "Informasi mengenai berkas yang diperlukan untuk penerbitan izin usaha UMKM.", 
       icon: <LayoutDashboard size={28} className="text-blue-600" />,
-      syarat: ["KTP Asli / Fotokopi", "Kartu Keluarga (KK)", "Data Nama & Alamat Usaha", "Foto Lokasi Usaha (Opsional)"]
+      syarat: ["KTP Asli / Fotokopi", "Kartu Keluarga (KK)", "Surat Keterangan RT", "Kartu Sampah"]
     },
     { 
       id: "sktm",
       title: "SKTM Online", 
       desc: "Syarat pengajuan surat keterangan tidak mampu untuk bantuan sosial/pendidikan.", 
       icon: <ShieldCheck size={28} className="text-emerald-600" />,
-      syarat: ["KTP Orang Tua", "Kartu Keluarga", "Surat Pengantar RT/RW setempat", "Pernyataan penghasilan"]
+      syarat: ["KTP Asli / Fotokopi", "Kartu Keluarga (KK)", "Surat Pengantar RT", "Kartu Sampah"]
     },
     { 
-      id: "umum",
-      title: "Surat Pengantar Umum", 
+      id: "Surat Pindah",
+      title: "Surat Pindah", 
       desc: "Persyaratan berkas untuk administrasi domisili atau keterangan pindah.", 
       icon: <Send size={28} className="text-purple-600" />,
-      syarat: ["KTP & KK Aktif", "Alamat Tujuan", "Menyertakan alasan yang jelas"]
+      syarat: ["KTP Asli / Fotokopi", "Kartu Keluarga (KK)", "Surat Pengantar RT", "Kartu Sampah"]
+    },
+     { 
+      id: "Skck",
+      title: "Surat Keterangan SKCK", 
+      desc: "Persyaratan berkas untuk membuat surat keterangan catatan kepolisian (SKCK).", 
+      icon: <Send size={28} className="text-purple-600" />,
+      syarat: ["KTP Asli / Fotokopi", "Kartu Keluarga (KK)", "Surat Pengantar RT", "Kartu Sampah"]
+    },
+    { 
+      id: "Surat Anak",
+      title: "Surat Urutan Anak", 
+      desc: "Persyaratan berkas untuk membuat akta kelahiran.", 
+      icon: <Send size={28} className="text-purple-600" />,
+      syarat: ["KTP Asli / Fotokopi", "Kartu Keluarga (KK)", "Surat Pengantar RT", "Kartu Sampah"]
     },
   ];
 

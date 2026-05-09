@@ -75,7 +75,7 @@ const Faq = () => {
             <HelpCircle size={28} />
           </motion.div>
           <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-4 tracking-tight">Tanya Jawab (FAQ)</h2>
-          <p className="text-slate-500">Informasi lengkap seputar prosedur administrasi di Desa Balapulang.</p>
+          <p className="text-slate-500">Informasi lengkap seputar prosedur administrasi di Desa Banjaranyar.</p>
         </div>
 
         <motion.div 

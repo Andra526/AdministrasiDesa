@@ -15,11 +15,11 @@ const Tentang = () => {
           className="text-center mb-16"
         >
           <div className="inline-block px-4 py-1.5 mb-4 bg-blue-50 rounded-full border border-blue-100">
-            <span className="text-[10px] font-black text-blue-700 uppercase tracking-[0.2em]">Profil Balapulang</span>
+            <span className="text-[10px] font-black text-blue-700 uppercase tracking-[0.2em]">Profil Banjaranyar</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-extrabold text-blue-900 mb-4">Membangun Desa Masa Depan</h2>
           <p className="text-slate-500 max-w-2xl mx-auto text-sm md:text-base leading-relaxed">
-            Mengenal lebih dekat visi dan misi Balai Desa Balapulang dalam mewujudkan tata kelola administrasi yang transparan bagi seluruh warga Tegal.
+            Mengenal lebih dekat visi dan misi Balai Desa Banjaranyar dalam mewujudkan tata kelola administrasi yang transparan bagi seluruh warga Tegal.
           </p>
         </motion.div>
         
@@ -37,7 +37,7 @@ const Tentang = () => {
             </div>
             <h3 className="text-2xl font-bold mb-4 text-slate-800 tracking-tight">Visi Desa</h3>
             <p className="text-slate-500 leading-relaxed italic border-l-4 border-blue-900 pl-4 text-sm md:text-base">
-              "Terwujudnya Desa Balapulang yang mandiri, sejahtera, dan terdepan dalam pelayanan administrasi berbasis digital di wilayah Tegal."
+              "Terwujudnya Desa Banjaranyar yang mandiri, sejahtera, dan terdepan dalam pelayanan administrasi berbasis digital di wilayah Tegal."
             </p>
           </motion.div>
 
@@ -64,7 +64,7 @@ const Tentang = () => {
                 <div className="w-5 h-5 bg-emerald-100 rounded-full flex items-center justify-center shrink-0 mt-0.5">
                   <div className="w-2 h-2 bg-emerald-500 rounded-full"></div> 
                 </div>
-                <span>Mendorong digitalisasi UMKM Balapulang agar naik kelas.</span>
+                <span>Mendorong digitalisasi UMKM Banjaranyar agar naik kelas.</span>
               </li>
               <li className="flex items-start gap-3">
                 <div className="w-5 h-5 bg-emerald-100 rounded-full flex items-center justify-center shrink-0 mt-0.5">

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { CheckCircle, Home, Loader2 } from 'lucide-react';
+import { CheckCircle, Home, Loader2, AlertCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 
@@ -9,32 +9,40 @@ export const StepSelesai = ({ formData }: { formData: any }) => {
 
   useEffect(() => {
     const kirimDataKeSupabase = async () => {
-      // Pastikan data ada sebelum melakukan insert
-      if (!formData || !formData.nik) return;
+      // 1. Validasi awal: pastikan data esensial tidak kosong
+      if (!formData || !formData.nik) {
+        setIsSyncing(false);
+        return;
+      }
 
-      const { error } = await supabase
-        .from('pengajuan_surat')
-        .insert([
-          { 
-            nik: formData.nik, 
-            nama_lengkap: formData.nama, 
-            jenis_surat: formData.jenisSurat, 
-            // Pastikan nama kolom di database sesuai (url_ktp & url_kk)
-            url_ktp: formData.url_ktp, 
-            url_kk: formData.url_kk,
-            alamat: formData.alamat || '',
-            status: 'Pending' 
-          }
-        ]);
+      try {
+        // 2. Proses Insert ke tabel 'pengajuan_surat'
+        // Nama key di bawah ini HARUS sama persis dengan kolom di SQL Supabase
+        const { error } = await supabase
+          .from('pengajuan_surat')
+          .insert([
+            { 
+              nik: formData.nik, 
+              nama: formData.nama,             // Diperbaiki: sesuai kolom 'nama' di SQL
+              jenis_surat: formData.jenisSurat, // Sesuai kolom 'jenis_surat'
+              alamat: formData.alamat || '',
+              keperluan: formData.keperluan || '', // Menambah kelengkapan data
+              url_ktp: formData.url_ktp,        // Pastikan berisi string path/URL
+              url_kk: formData.url_kk,          // Pastikan berisi string path/URL
+              status: 'pending'                 // Konsisten dengan default di SQL
+            }
+          ]);
 
-      if (error) {
-        console.error("Gagal kirim ke database:", error.message);
-        setIsError(true);
-      } else {
+        if (error) throw error;
+
         console.log("Data berhasil masuk ke sistem Digidesa!");
         setIsError(false);
+      } catch (err: any) {
+        console.error("Gagal kirim ke database:", err.message);
+        setIsError(true);
+      } finally {
+        setIsSyncing(false);
       }
-      setIsSyncing(false);
     };
 
     kirimDataKeSupabase();
@@ -53,12 +61,12 @@ export const StepSelesai = ({ formData }: { formData: any }) => {
         </div>
       ) : isError ? (
         <div className="space-y-4">
-          <div className="w-20 h-20 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto">
-            <span className="text-2xl font-bold">!</span>
+          <div className="w-20 h-20 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto shadow-inner">
+            <AlertCircle size={40} />
           </div>
           <h3 className="text-xl font-black text-slate-900">Gagal Mengirim Data</h3>
           <p className="text-slate-500 px-6 text-sm">
-            Terjadi kendala saat menghubungkan ke server. Silahkan coba lagi atau hubungi admin.
+            Terjadi kendala saat menghubungkan ke database. Pastikan koneksi internet stabil atau hubungi admin desa.
           </p>
         </div>
       ) : (

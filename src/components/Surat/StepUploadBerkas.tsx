@@ -6,7 +6,6 @@ import { supabase } from '../../lib/supabaseClient';
 export const StepUploadBerkas = ({ onNext, onPrev, data, setData }: any) => {
   const [isUploading, setIsUploading] = useState(false);
 
-  // Fungsi untuk menangani pilihan file dan memasukkannya ke state
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
     if (e.target.files && e.target.files[0]) {
       setData({ ...data, [field]: e.target.files[0] });
@@ -22,7 +21,7 @@ export const StepUploadBerkas = ({ onNext, onPrev, data, setData }: any) => {
     setIsUploading(true);
 
     try {
-      // 1. Proses Upload KTP
+      // 1. Upload KTP ke Storage
       const ktpName = `${Date.now()}_${data.nik}_ktp`;
       const { data: ktpRes, error: ktpErr } = await supabase.storage
         .from('berkas-surat')
@@ -30,7 +29,7 @@ export const StepUploadBerkas = ({ onNext, onPrev, data, setData }: any) => {
 
       if (ktpErr) throw ktpErr;
 
-      // 2. Proses Upload KK
+      // 2. Upload KK ke Storage
       const kkName = `${Date.now()}_${data.nik}_kk`;
       const { data: kkRes, error: kkErr } = await supabase.storage
         .from('berkas-surat')
@@ -38,17 +37,36 @@ export const StepUploadBerkas = ({ onNext, onPrev, data, setData }: any) => {
 
       if (kkErr) throw kkErr;
 
-      // 3. Simpan nama file hasil upload ke state utama untuk disimpan ke DB di step terakhir
+      // 3. LANGSUNG simpan ke Database (Gunakan nama tabel kamu, misal: 'pengajuan_surat')
+      // Kita pakai hasil dari ktpRes/kkRes langsung agar pasti datanya ada
+      const { error: dbErr } = await supabase
+        .from('pengajuan_surat') 
+        .insert([{
+          nama: data.nama,
+          nik: data.nik,
+          jenis_surat: data.jenisSurat,
+          alamat: data.alamat,
+          url_ktp: ktpRes.path,
+          url_kk: kkRes.path,
+          status: 'pending',
+          created_at: new Date().toISOString()
+        }]);
+
+      if (dbErr) throw dbErr;
+
+      // 4. Update state lokal untuk langkah terakhir jika diperlukan
       setData({ 
         ...data, 
         url_ktp: ktpRes.path, 
         url_kk: kkRes.path 
       });
 
-      onNext(); // Pindah ke StepSelesai
+      // 5. Pindah ke halaman sukses
+      onNext(); 
+
     } catch (error: any) {
-      console.error("Error upload:", error.message);
-      alert("Gagal mengunggah berkas. Pastikan koneksi aman.");
+      console.error("Error Detail:", error);
+      alert(`Terjadi kesalahan: ${error.message || "Gagal mengirim data"}`);
     } finally {
       setIsUploading(false);
     }

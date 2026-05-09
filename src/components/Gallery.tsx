@@ -1,12 +1,16 @@
 import { motion } from 'framer-motion';
 import { Camera, Map } from 'lucide-react';
+import imgadministrasi from '../img/administrasi.jpeg';
+import imgRapat from '../img/rapat.jpeg';
+import imgSosialisasi from '../img/sosialisasi.jpeg';
 
 const Gallery = () => {
   const photos = [
-    { id: 1, title: "Rapat Desa", category: "Administrasi", url: "https://images.unsplash.com/photo-1577412647305-991150c7d163?q=80&w=800" },
-    { id: 2, title: "Kegiatan UMKM", category: "Ekonomi", url: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=800" },
-    { id: 3, title: "Penyuluhan Warga", category: "Sosial", url: "https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=800" },
-    { id: 4, title: "Layanan Balai Desa", category: "Digital", url: "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=800" },
+    { id: 1, title: "Rapat Desa", category: "Administrasi", url: imgRapat },
+    { id: 2, title: "Layanan Balai Desa", category: "Digital", url: imgadministrasi },
+    { id: 3, title: "Sosialisasi Program", category: "Pemberdayaan", url: imgSosialisasi },
+    { id: 4, title: "UNKM Program", category: "UMKM", url: imgSosialisasi },
+
   ];
 
   return (
@@ -20,13 +24,13 @@ const Gallery = () => {
             viewport={{ once: true }}
           >
             <h2 className="text-3xl font-black text-blue-900 mb-6 flex items-center gap-2">
-              <Map size={32} /> Mengenal Balapulang
+              <Map size={32} /> Mengenal Banjaranyar
             </h2>
             <p className="text-slate-600 leading-relaxed mb-4">
               Kecamatan Balapulang merupakan wilayah strategis di Kabupaten Tegal yang dikenal dengan keramahan penduduknya dan potensi ekonomi kerakyatan yang kuat. 
             </p>
             <p className="text-slate-600 leading-relaxed">
-              Balai Desa Balapulang kini bertransformasi menjadi pusat digitalisasi layanan publik, memastikan setiap warga mendapatkan akses administrasi yang modern, cepat, dan transparan sesuai standar 
+              Balai Desa Banjaranyar kini bertransformasi menjadi pusat digitalisasi layanan publik, memastikan setiap warga mendapatkan akses administrasi yang modern, cepat, dan transparan sesuai standar 
             </p>
           </motion.div>
           <div className="p-8 bg-blue-900 rounded-[3rem] text-white shadow-2xl">

@@ -12,7 +12,7 @@ const Hero = () => {
           transition={{ duration: 0.8 }}
         >
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold mb-6">
-            <ShieldCheck size={14} /> SISTEM INFORMASI DESA BALAPULANG
+            <ShieldCheck size={14} /> SISTEM INFORMASI DESA BANJARANYAR
           </div>
           <h2 className="text-5xl md:text-6xl font-black text-slate-900 leading-[1.05] mb-8">
             Pelayanan Administrasi <br/>
@@ -21,7 +21,7 @@ const Hero = () => {
             </span>
           </h2>
           <p className="text-lg text-slate-500 max-w-lg mb-10 leading-relaxed">
-            Warga Balapulang kini bisa mengurus surat keterangan dan administrasi kependudukan cukup dari smartphone. Lebih cepat, transparan, dan efisien.
+            Warga Banjaranyar kini bisa mengurus surat keterangan dan administrasi kependudukan cukup dari smartphone. Lebih cepat, transparan, dan efisien.
           </p>
           <div className="flex flex-wrap gap-4">
             <button className="px-10 py-4 bg-blue-900 text-white rounded-2xl font-bold hover:shadow-2xl hover:shadow-blue-900/40 transition-all flex items-center gap-2">
@@ -39,7 +39,7 @@ const Hero = () => {
           <img 
             src="https://images.unsplash.com/photo-1577412647305-991150c7d163?q=80&w=1200" 
             className="rounded-[3rem] shadow-2xl border-[12px] border-white object-cover h-[500px] w-full"
-            alt="Balapulang Digital" 
+            alt="Banjaranyar Digital" 
           />
         </motion.div>
       </div>

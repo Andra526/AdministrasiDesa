@@ -22,7 +22,7 @@ export const BiodataForm = ({ onChange }: { onChange: (data: any) => void }) => 
           onChange={(e) => onChange({ ttl: e.target.value })}
         />
         <textarea 
-          placeholder="Alamat Lengkap di Balapulang" 
+          placeholder="Alamat Lengkap di Banjaranyar" 
           className="p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-900 outline-none transition-all md:col-span-2"
           onChange={(e) => onChange({ alamat: e.target.value })}
         />
