@@ -1,77 +1,70 @@
 import { useState } from 'react';
-import { supabase } from '../../lib/supabaseClient';
 
-export const SkuForm = () => {
-  const [formData, setFormData] = useState({
+// 1. Hapus import supabase di sini karena pengiriman dilakukan di akhir (StepUploadBerkas)
+export const SkuForm = ({ onNext, setData }: { onNext: () => void, setData: (data: any) => void }) => {
+  const [formData, setLocalFormData] = useState({
     nama: '', nik: '', usaha: '', alamat: ''
   });
-  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    
+    // 2. Simpan data ke state utama di PengajuanSurat.tsx
+    // Kita menggabungkan data usaha dan alamat ke dalam field 'keperluan'
+    setData((prev: any) => ({
+      ...prev,
+      nama: formData.nama,
+      nik: formData.nik,
+      // Data usaha disimpan di keperluan agar rapi saat masuk database nanti
+      keperluan: `Nama Usaha: ${formData.usaha}, Alamat Usaha: ${formData.alamat}`,
+      jenisSurat: 'SKU' 
+    }));
 
-    const { error } = await supabase.from('pengajuan_surat').insert([
-      { 
-        nama_lengkap: formData.nama, 
-        nik: formData.nik, 
-        jenis_surat: 'SKU',
-        keperluan: `Usaha: ${formData.usaha}, Alamat: ${formData.alamat}`,
-        status: 'Pending'
-      }
-    ]);
-
-    if (error) {
-      alert("Gagal kirim data");
-    } else {
-      // generateSKUPDF(formData);
-      alert("Berhasil! PDF Surat SKU Anda sedang diunduh.");
-      setFormData({ nama: '', nik: '', usaha: '', alamat: '' });
-      (e.target as HTMLFormElement).reset();
-    }
-    setLoading(false);
+    // 3. Pindah ke tahap berikutnya (Upload Berkas)
+    onNext();
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {/* HEADER DIHAPUS UNTUK TAMPILAN CLEAN */}
-      
       <div className="space-y-3">
         <input 
           type="text" 
           placeholder="Nama Lengkap sesuai KTP" 
-          className="w-full p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-blue-600 transition-all"
-          onChange={(e) => setFormData({...formData, nama: e.target.value})} 
+          className="w-full p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-blue-600 transition-all font-medium text-slate-700"
+          value={formData.nama}
+          onChange={(e) => setLocalFormData({...formData, nama: e.target.value})} 
           required 
         />
         <input 
           type="text" 
           placeholder="NIK (16 Digit)" 
-          className="w-full p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-blue-600 transition-all"
-          onChange={(e) => setFormData({...formData, nik: e.target.value})} 
+          className="w-full p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-blue-600 transition-all font-medium text-slate-700"
+          value={formData.nik}
+          onChange={(e) => setLocalFormData({...formData, nik: e.target.value})} 
           required 
         />
         <input 
           type="text" 
           placeholder="Nama Usaha" 
-          className="w-full p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-blue-600 transition-all"
-          onChange={(e) => setFormData({...formData, usaha: e.target.value})} 
+          className="w-full p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-blue-600 transition-all font-medium text-slate-700"
+          value={formData.usaha}
+          onChange={(e) => setLocalFormData({...formData, usaha: e.target.value})} 
           required 
         />
         <textarea 
           placeholder="Alamat Lengkap Tempat Usaha" 
-          className="w-full p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-blue-600 min-h-[120px] transition-all"
-          onChange={(e) => setFormData({...formData, alamat: e.target.value})} 
+          className="w-full p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-blue-600 min-h-[120px] transition-all font-medium text-slate-700"
+          value={formData.alamat}
+          onChange={(e) => setLocalFormData({...formData, alamat: e.target.value})} 
           required 
         />
       </div>
 
       <button 
         type="submit" 
-        disabled={loading}
-        className="w-full py-4 bg-blue-900 text-white rounded-2xl font-bold hover:bg-blue-800 transition-all shadow-lg active:scale-[0.98]"
+        className="w-full py-4 bg-blue-900 text-white rounded-2xl font-bold hover:bg-blue-800 transition-all shadow-lg active:scale-[0.98] uppercase tracking-wider text-sm"
       >
-        {loading ? "Memproses..." : "Kirim Permohonan"}
+        Lanjutkan ke Upload Berkas
       </button>
     </form>
   );
