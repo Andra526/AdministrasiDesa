@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Upload, ArrowLeft, Send, Loader2 } from 'lucide-react';
+import { Upload, ArrowLeft, Send, Loader2, FileCheck } from 'lucide-react';
 import { useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 
@@ -13,32 +13,38 @@ export const StepUploadBerkas = ({ onNext, onPrev, data, setData }: any) => {
   };
 
   const handleUploadAndSubmit = async () => {
+    // Validasi dasar: Minimal KTP dan KK harus ada
     if (!data.berkasKtp || !data.berkasKk) {
-      alert("Harap unggah kedua berkas (KTP & KK) terlebih dahulu.");
+      alert("Harap unggah minimal KTP & KK terlebih dahulu.");
       return;
     }
 
     setIsUploading(true);
 
     try {
-      // 1. Upload KTP ke Storage
-      const ktpName = `${Date.now()}_${data.nik}_ktp`;
-      const { data: ktpRes, error: ktpErr } = await supabase.storage
-        .from('berkas-surat')
-        .upload(ktpName, data.berkasKtp);
+      // Fungsi Helper untuk Upload ke Supabase Storage
+      const uploadFile = async (file: File, folder: string) => {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}_${data.nik}_${folder}.${fileExt}`;
+        const { data: res, error } = await supabase.storage
+          .from('berkas-surat')
+          .upload(fileName, file);
+        
+        if (error) throw error;
+        return res.path;
+      };
 
-      if (ktpErr) throw ktpErr;
+      // 1. Upload semua berkas secara paralel
+      const [pathKtp, pathKk] = await Promise.all([
+        uploadFile(data.berkasKtp, 'ktp'),
+        uploadFile(data.berkasKk, 'kk')
+      ]);
 
-      // 2. Upload KK ke Storage
-      const kkName = `${Date.now()}_${data.nik}_kk`;
-      const { data: kkRes, error: kkErr } = await supabase.storage
-        .from('berkas-surat')
-        .upload(kkName, data.berkasKk);
+      // 2. Upload berkas opsional jika ada
+      let pathRT = data.berkasRT ? await uploadFile(data.berkasRT, 'surat_rt') : null;
+      let pathSambah = data.berkasSambah ? await uploadFile(data.berkasSambah, 'kartu_sambah') : null;
 
-      if (kkErr) throw kkErr;
-
-      // 3. LANGSUNG simpan ke Database (Gunakan nama tabel kamu, misal: 'pengajuan_surat')
-      // Kita pakai hasil dari ktpRes/kkRes langsung agar pasti datanya ada
+      // 3. Simpan data ke Database
       const { error: dbErr } = await supabase
         .from('pengajuan_surat') 
         .insert([{
@@ -46,22 +52,25 @@ export const StepUploadBerkas = ({ onNext, onPrev, data, setData }: any) => {
           nik: data.nik,
           jenis_surat: data.jenisSurat,
           alamat: data.alamat,
-          url_ktp: ktpRes.path,
-          url_kk: kkRes.path,
+          url_ktp: pathKtp,
+          url_kk: pathKk,
+          url_surat_rt: pathRT,
+          url_kartu_sambah: pathSambah,
           status: 'pending',
           created_at: new Date().toISOString()
         }]);
 
       if (dbErr) throw dbErr;
 
-      // 4. Update state lokal untuk langkah terakhir jika diperlukan
+      // 4. Update state global sebelum pindah step
       setData({ 
         ...data, 
-        url_ktp: ktpRes.path, 
-        url_kk: kkRes.path 
+        url_ktp: pathKtp, 
+        url_kk: pathKk,
+        url_surat_rt: pathRT,
+        url_kartu_sambah: pathSambah
       });
 
-      // 5. Pindah ke halaman sukses
       onNext(); 
 
     } catch (error: any) {
@@ -71,6 +80,22 @@ export const StepUploadBerkas = ({ onNext, onPrev, data, setData }: any) => {
       setIsUploading(false);
     }
   };
+
+  // Komponen Reusable untuk Kotak Upload agar kode lebih bersih
+  const UploadBox = ({ field, label, fileData }: any) => (
+    <label className={`border-2 border-dashed p-6 rounded-[2rem] text-center transition-all cursor-pointer group block ${fileData ? 'border-emerald-400 bg-emerald-50/30' : 'border-slate-200 hover:border-blue-400 hover:bg-blue-50/30'}`}>
+      {fileData ? (
+        <FileCheck className="mx-auto mb-2 text-emerald-600" size={24} />
+      ) : (
+        <Upload className="mx-auto mb-2 text-slate-400 group-hover:text-blue-600" size={24} />
+      )}
+      <p className="text-[11px] font-black text-slate-700 uppercase tracking-tighter">{label}</p>
+      <p className="text-[9px] text-slate-400 mt-1 truncate px-2">
+        {fileData ? fileData.name : "Klik untuk pilih file"}
+      </p>
+      <input type="file" className="hidden" accept="image/*,application/pdf" onChange={(e) => handleFileChange(e, field)} />
+    </label>
+  );
 
   return (
     <motion.div 
@@ -83,22 +108,11 @@ export const StepUploadBerkas = ({ onNext, onPrev, data, setData }: any) => {
          Upload Dokumen Pendukung
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Input KTP */}
-        <label className={`border-2 border-dashed p-8 rounded-[2rem] text-center transition-all cursor-pointer group block ${data.berkasKtp ? 'border-emerald-400 bg-emerald-50/30' : 'border-slate-200 hover:border-blue-400 hover:bg-blue-50/30'}`}>
-          <Upload className={`mx-auto mb-3 ${data.berkasKtp ? 'text-emerald-600' : 'text-slate-400 group-hover:text-blue-600'}`} />
-          <p className="text-xs font-bold text-slate-700">{data.berkasKtp ? "KTP Terpilih" : "Foto KTP"}</p>
-          <p className="text-[10px] text-slate-400 mt-1">{data.berkasKtp ? data.berkasKtp.name : "Klik untuk pilih file"}</p>
-          <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileChange(e, 'berkasKtp')} />
-        </label>
-
-        {/* Input KK */}
-        <label className={`border-2 border-dashed p-8 rounded-[2rem] text-center transition-all cursor-pointer group block ${data.berkasKk ? 'border-emerald-400 bg-emerald-50/30' : 'border-slate-200 hover:border-blue-400 hover:bg-blue-50/30'}`}>
-          <Upload className={`mx-auto mb-3 ${data.berkasKk ? 'text-emerald-600' : 'text-slate-400 group-hover:text-blue-600'}`} />
-          <p className="text-xs font-bold text-slate-700">{data.berkasKk ? "KK Terpilih" : "Foto KK"}</p>
-          <p className="text-[10px] text-slate-400 mt-1">{data.berkasKk ? data.berkasKk.name : "Klik untuk pilih file"}</p>
-          <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileChange(e, 'berkasKk')} />
-        </label>
+      <div className="grid grid-cols-2 gap-4">
+        <UploadBox field="berkasKtp" label="Foto KTP" fileData={data.berkasKtp} />
+        <UploadBox field="berkasKk" label="Foto KK" fileData={data.berkasKk} />
+        <UploadBox field="berkasRT" label="Surat Pengantar RT" fileData={data.berkasRT} />
+        <UploadBox field="berkasSampah" label="Kartu Sampah" fileData={data.berkasSampah} />
       </div>
 
       <div className="flex gap-3 pt-4">

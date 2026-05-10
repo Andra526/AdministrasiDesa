@@ -6,28 +6,28 @@ import { StepDataDiri } from './StepDataDiri';
 import { StepUploadBerkas } from './StepUploadBerkas';
 import { StepSelesai } from './StepSelesai';
 
-
 const PengajuanSurat = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [judulSurat, setJudulSurat] = useState("Surat Keterangan");
   
-  // 1. TAMBAHKAN field 'jenisSurat' agar tersimpan di state
+  // UPDATE: Menambahkan berkasRT dan berkasSambah ke initial state
   const [formData, setFormData] = useState({
     nama: '', 
     nik: '', 
     alamat: '', 
     berkasKtp: null, 
     berkasKk: null,
-    jenisSurat: '' // Tambahan ini
+    berkasRT: null,      // Tambahan Baru
+    berkasSambah: null,  // Tambahan Baru
+    jenisSurat: '' 
   });
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const jenis = params.get('jenis') || 'umum';
     
-    // Simpan jenis surat ke state agar bisa dikirim ke database nanti
     setFormData(prev => ({ ...prev, jenisSurat: jenis.toUpperCase() }));
 
     if (jenis === 'sku') setJudulSurat("Surat Keterangan Usaha (SKU)");
@@ -49,42 +49,42 @@ const PengajuanSurat = () => {
         
         {/* Header Section */}
         <div className="p-5 md:p-8 border-b border-slate-50 bg-white text-center">
-           <div className="mb-2 text-[8px] md:text-[10px] font-black text-blue-600 uppercase tracking-[0.2em]">
-             Layanan Mandiri Online
-           </div>
-           <h2 className="text-lg md:text-xl font-extrabold text-slate-800 mb-6 md:mb-10 uppercase tracking-tight px-2">
-             FORM PENGAJUAN: <span className="text-blue-700 block sm:inline">{judulSurat}</span>
-           </h2>
-           
-           {/* Stepper */}
-           <div className="flex justify-between relative px-2 md:px-10">
-              <div className="absolute top-4 md:top-5 left-10 right-10 h-[2px] md:h-[3px] bg-slate-100 -z-0" />
-              <motion.div 
-                className="absolute top-4 md:top-5 left-10 h-[2px] md:h-[3px] bg-blue-600 -z-0"
-                initial={{ width: "0%" }}
-                animate={{ width: step === 1 ? "0%" : step === 2 ? "45%" : "85%" }}
-                transition={{ duration: 0.5 }}
-              />
+            <div className="mb-2 text-[8px] md:text-[10px] font-black text-blue-600 uppercase tracking-[0.2em]">
+              Layanan Mandiri Online
+            </div>
+            <h2 className="text-lg md:text-xl font-extrabold text-slate-800 mb-6 md:mb-10 uppercase tracking-tight px-2">
+              FORM PENGAJUAN: <span className="text-blue-700 block sm:inline">{judulSurat}</span>
+            </h2>
+            
+            {/* Stepper */}
+            <div className="flex justify-between relative px-2 md:px-10">
+               <div className="absolute top-4 md:top-5 left-10 right-10 h-[2px] md:h-[3px] bg-slate-100 -z-0" />
+               <motion.div 
+                 className="absolute top-4 md:top-5 left-10 h-[2px] md:h-[3px] bg-blue-600 -z-0"
+                 initial={{ width: "0%" }}
+                 animate={{ width: step === 1 ? "0%" : step === 2 ? "45%" : "85%" }}
+                 transition={{ duration: 0.5 }}
+               />
 
-              {[
-                { id: 1, icon: <User size={16} />, label: "Data" },
-                { id: 2, icon: <FileUp size={16} />, label: "Berkas" },
-                { id: 3, icon: <CheckCircle size={16} />, label: "Selesai" }
-              ].map((item) => (
-                <div key={item.id} className="relative z-10 flex flex-col items-center gap-2">
-                  <div className={`w-8 h-8 md:w-11 md:h-11 rounded-full flex items-center justify-center transition-all duration-500 border-2 md:border-4 ${
-                    step >= item.id ? 'bg-blue-600 text-white border-blue-100 shadow-lg' : 'bg-white text-slate-300 border-slate-50'
-                  }`}>
-                    {item.id < step ? <CheckCircle size={16} /> : item.icon}
-                  </div>
-                  <span className={`text-[8px] md:text-[10px] font-bold uppercase tracking-wider ${
-                    step >= item.id ? 'text-blue-700' : 'text-slate-400'
-                  }`}>
-                    {item.label}
-                  </span>
-                </div>
-              ))}
-           </div>
+               {[
+                 { id: 1, icon: <User size={16} />, label: "Data" },
+                 { id: 2, icon: <FileUp size={16} />, label: "Berkas" },
+                 { id: 3, icon: <CheckCircle size={16} />, label: "Selesai" }
+               ].map((item) => (
+                 <div key={item.id} className="relative z-10 flex flex-col items-center gap-2">
+                   <div className={`w-8 h-8 md:w-11 md:h-11 rounded-full flex items-center justify-center transition-all duration-500 border-2 md:border-4 ${
+                     step >= item.id ? 'bg-blue-600 text-white border-blue-100 shadow-lg' : 'bg-white text-slate-300 border-slate-50'
+                   }`}>
+                     {item.id < step ? <CheckCircle size={16} /> : item.icon}
+                   </div>
+                   <span className={`text-[8px] md:text-[10px] font-bold uppercase tracking-wider ${
+                     step >= item.id ? 'text-blue-700' : 'text-slate-400'
+                   }`}>
+                     {item.label}
+                   </span>
+                 </div>
+               ))}
+            </div>
         </div>
 
         {/* Content Body */}
@@ -104,8 +104,6 @@ const PengajuanSurat = () => {
             >
               {step === 1 && <StepDataDiri onNext={nextStep} data={formData} setData={setFormData} />}
               {step === 2 && <StepUploadBerkas onNext={nextStep} onPrev={prevStep} data={formData} setData={setFormData} />}
-              
-              {/* 2. KIRIM formData ke StepSelesai */}
               {step === 3 && <StepSelesai formData={formData} />}
             </motion.div>
           </AnimatePresence>

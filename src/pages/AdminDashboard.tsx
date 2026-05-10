@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   CheckCircle, Trash2, Calendar, 
   FileText, FileSpreadsheet, RefreshCw, LogOut,
-  Clock, ChevronRight, Eye, Search, FileDown // Tambahkan FileDown
+  Clock, ChevronRight, Eye, Search, FileDown 
 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 
@@ -39,54 +39,106 @@ const AdminDashboard = () => {
     return () => { supabase.removeChannel(channel); };
   }, []);
 
-  // --- FUNGSI CETAK PDF ---
-  const generatePDF = (item: any) => {
+// --- FUNGSI CETAK PDF FORMAL ---
+// --- FUNGSI CETAK PDF DENGAN KEAMANAN TINGGI ---
+  const generatePDF = async (item: any) => {
     const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
 
-    // 1. Kop Surat
+    // 1. TAMBAHKAN WATERMARK (Dibuat paling awal agar di background)
+    doc.setTextColor(245, 245, 245); 
+    doc.setFontSize(60);
+    doc.setFont("helvetica", "bold");
+    doc.text("DOKUMEN ASLI", pageWidth / 2, pageHeight / 2, { 
+      align: "center", 
+      angle: 45 
+    });
+
+    // 2. KOP SURAT & LOGO
+    // Ganti string ini dengan Base64 logo Desa Balapulang kamu
+    const logoDesa = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="; 
+    
+    try {
+      doc.addImage(logoDesa, 'PNG', 20, 10, 25, 25);
+    } catch (e) {
+      console.log("Logo belum diatur, menggunakan teks.");
+    }
+
+    doc.setTextColor(0, 0, 0); // Reset warna teks ke hitam
     doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
-    doc.text("PEMERINTAH KABUPATEN TEGAL", 105, 15, { align: "center" });
-    doc.text("KECAMATAN BALAPULANG", 105, 22, { align: "center" });
+    doc.text("PEMERINTAH KABUPATEN TEGAL", 115, 15, { align: "center" });
+    doc.text("KECAMATAN BALAPULANG", 115, 22, { align: "center" });
     doc.setFontSize(16);
-    doc.text("KANTOR KEPALA DESA DIGITAL", 105, 30, { align: "center" });
+    doc.text("KANTOR KEPALA DESA DIGITAL", 115, 30, { align: "center" });
     
-    doc.setLineWidth(0.5);
-    doc.line(20, 35, 190, 35); 
+    doc.setLineWidth(0.8);
+    doc.line(20, 38, 190, 38); // Garis tebal kop
+    doc.setLineWidth(0.2);
+    doc.line(20, 39, 190, 39); // Garis tipis kop
 
-    // 2. Judul
+    // 3. JUDUL & NOMOR SURAT
     doc.setFontSize(12);
     doc.setFont("helvetica", "bold");
-    doc.text(`SURAT KETERANGAN: ${item.jenis_surat}`, 105, 45, { align: "center" });
+    doc.text(`SURAT KETERANGAN: ${item.jenis_surat.toUpperCase()}`, pageWidth / 2, 50, { align: "center" });
     doc.setFont("helvetica", "normal");
-    doc.text(`Nomor: ${item.id.substring(0, 8)}/KDS/${new Date().getFullYear()}`, 105, 52, { align: "center" });
+    doc.text(`Nomor: ${item.id.substring(0, 8)}/KDS/${new Date().getFullYear()}`, pageWidth / 2, 57, { align: "center" });
 
-    // 3. Tabel Data
+    // 4. ISI SURAT (FORMAL)
+    doc.setFontSize(11);
+    doc.text("Assalamualaikum Warahmatullahi Wabarakatuh,", 25, 70);
+    const openingText = "Yang bertanda tangan di bawah ini Kepala Desa Digital, Kecamatan Balapulang, Kabupaten Tegal, menerangkan dengan sebenarnya bahwa:";
+    doc.text(doc.splitTextToSize(openingText, 160), 25, 77);
+
+    // 5. TABEL DATA WARGA
     autoTable(doc, {
-      startY: 60,
+      startY: 85,
       theme: 'plain',
       body: [
         ['Nama Lengkap', ':', item.nama],
         ['NIK', ':', item.nik],
         ['Jenis Layanan', ':', item.jenis_surat],
+        ['Alamat', ':', item.alamat || 'Desa Balapulang, Tegal'],
         ['Tanggal Pengajuan', ':', new Date(item.created_at).toLocaleDateString('id-ID')],
-        ['Status', ':', item.status],
-        ['Detail Keperluan', ':', item.keperluan || '-'],
+        ['Keperluan', ':', item.keperluan || '-'],
       ],
       columnStyles: {
-        0: { cellWidth: 40, fontStyle: 'bold' },
+        0: { cellWidth: 45, fontStyle: 'bold' },
         1: { cellWidth: 5 },
         2: { cellWidth: 'auto' }
       },
-      styles: { fontSize: 11, cellPadding: 3 }
+      styles: { fontSize: 11, cellPadding: 3 },
+      margin: { left: 30 }
     });
 
-    // 4. Tanda Tangan
-    const finalY = (doc as any).lastAutoTable.finalY + 20;
-    doc.text("Balapulang, " + new Date().toLocaleDateString('id-ID'), 140, finalY);
-    doc.text("Kepala Desa Digital,", 140, finalY + 7);
-    doc.text("( ____________________ )", 140, finalY + 35);
+    const finalTableY = (doc as any).lastAutoTable.finalY + 10;
+    const closingText = "Demikian surat keterangan ini kami sampaikan agar dapat dipergunakan sebagaimana mestinya. Atas perhatian dan kerjasamanya, kami ucapkan terima kasih.";
+    doc.text(doc.splitTextToSize(closingText, 160), 25, finalTableY);
+    doc.text("Wassalamualaikum Warahmatullahi Wabarakatuh.", 25, finalTableY + 15);
 
+    // 6. QR CODE & TANDA TANGAN (KEAMANAN)
+    const signY = finalTableY + 35;
+    
+  
+
+    doc.setFontSize(11);
+    doc.text("Balapulang, " + new Date().toLocaleDateString('id-ID'), 140, signY);
+    doc.text("Kepala Desa Digital,", 140, signY + 7);
+    doc.setFont("helvetica", "bold");
+    doc.text("( ANDRA DEVELOPER )", 140, signY + 25); // Nama Pejabat
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.text("NIP. 19900101 202605 1 003", 140, signY + 35);
+
+    // 7. FOOTER (Identitas Sistem)
+    doc.setDrawColor(230);
+    doc.line(20, pageHeight - 15, 190, pageHeight - 15);
+    doc.setFontSize(8);
+    doc.setTextColor(150);
+    doc.text("Dokumen ini diterbitkan secara digital oleh Sistem DIGIDESA Balapulang - Banjaranyar.", pageWidth / 2, pageHeight - 10, { align: "center" });
+
+    // 8. DOWNLOAD
     doc.save(`Surat_${item.jenis_surat}_${item.nama}.pdf`);
   };
 
@@ -108,16 +160,28 @@ const AdminDashboard = () => {
     }
   };
 
+  // --- UPDATE FUNGSI DOWNLOAD BERKAS (4 FILE) ---
   const downloadBerkas = (item: any) => {
-    if (!item.url_ktp && !item.url_kk) return alert("Warga tidak mengunggah berkas.");
     const openFile = (path: string) => {
+      if (!path) return;
       const { data } = supabase.storage.from('berkas-surat').getPublicUrl(path);
       window.open(data.publicUrl, '_blank');
     };
-    if (item.url_ktp && item.url_kk) {
-      if (confirm("Lihat KTP? (Klik 'Cancel' untuk melihat KK)")) openFile(item.url_ktp);
-      else openFile(item.url_kk);
-    } else openFile(item.url_ktp || item.url_kk);
+
+    const choice = prompt(
+      `Pilih berkas yang ingin dilihat untuk ${item.nama}:\n` +
+      `1. KTP\n` +
+      `2. KK\n` +
+      `3. Surat Pengantar RT\n` +
+      `4. Kartu Sambah\n\n` +
+      `Ketik angka (1-4):`, 
+      "1"
+    );
+
+    if (choice === "1") item.url_ktp ? openFile(item.url_ktp) : alert("KTP tidak ada");
+    else if (choice === "2") item.url_kk ? openFile(item.url_kk) : alert("KK tidak ada");
+    else if (choice === "3") item.url_surat_rt ? openFile(item.url_surat_rt) : alert("Surat RT tidak ada");
+    else if (choice === "4") item.url_kartu_sambah ? openFile(item.url_kartu_sambah) : alert("Kartu Sambah tidak ada");
   };
 
   const exportToCSV = () => {
@@ -291,7 +355,6 @@ const AdminDashboard = () => {
                                 <CheckCircle size={18} />
                               </button>
                             )}
-                            {/* TOMBOL BARU: CETAK PDF */}
                             <button 
                               onClick={() => generatePDF(item)} 
                               className="p-3 bg-amber-50 text-amber-600 rounded-xl hover:bg-amber-600 hover:text-white transition-all" 
