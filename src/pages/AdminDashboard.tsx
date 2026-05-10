@@ -6,17 +6,43 @@ import {
   Clock, ChevronRight, Eye, Search, FileDown 
 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
+import { useNavigate } from 'react-router-dom'; // Tambahkan navigasi
 
 // IMPORT UNTUK PDF
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
 const AdminDashboard = () => {
+  const navigate = useNavigate(); // Hook untuk pindah halaman
   const [pengajuan, setPengajuan] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('Semua');
   const [searchQuery, setSearchQuery] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // --- PROTEK DASHBOARD & FETCH DATA ---
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      // Jika tidak ada sesi login, arahkan ke login
+      if (!session) {
+        navigate('/login');
+        return;
+      }
+      
+      fetchData();
+    };
+
+    checkUser();
+
+    const channel = supabase
+      .channel('db-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'pengajuan_surat' }, () => fetchData())
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, []);
 
   const fetchData = async () => {
     const { data, error } = await supabase
@@ -29,24 +55,23 @@ const AdminDashboard = () => {
     setLoading(false);
   };
 
-  useEffect(() => {
-    fetchData();
-    const channel = supabase
-      .channel('db-realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'pengajuan_surat' }, () => fetchData())
-      .subscribe();
-
-    return () => { supabase.removeChannel(channel); };
-  }, []);
+  // --- FUNGSI LOGOUT (Pindah ke scope utama) ---
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error("Gagal logout:", error.message);
+    } else {
+      navigate('/login'); // Gunakan navigate untuk kebersihan state
+    }
+  };
 
 // --- FUNGSI CETAK PDF FORMAL ---
-// --- FUNGSI CETAK PDF DENGAN KEAMANAN TINGGI ---
   const generatePDF = async (item: any) => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
 
-    // 1. TAMBAHKAN WATERMARK (Dibuat paling awal agar di background)
+    // 1. TAMBAHKAN WATERMARK
     doc.setTextColor(245, 245, 245); 
     doc.setFontSize(60);
     doc.setFont("helvetica", "bold");
@@ -56,7 +81,6 @@ const AdminDashboard = () => {
     });
 
     // 2. KOP SURAT & LOGO
-    // Ganti string ini dengan Base64 logo Desa Balapulang kamu
     const logoDesa = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="; 
     
     try {
@@ -65,7 +89,7 @@ const AdminDashboard = () => {
       console.log("Logo belum diatur, menggunakan teks.");
     }
 
-    doc.setTextColor(0, 0, 0); // Reset warna teks ke hitam
+    doc.setTextColor(0, 0, 0);
     doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
     doc.text("PEMERINTAH KABUPATEN TEGAL", 115, 15, { align: "center" });
@@ -74,9 +98,9 @@ const AdminDashboard = () => {
     doc.text("KANTOR KEPALA DESA DIGITAL", 115, 30, { align: "center" });
     
     doc.setLineWidth(0.8);
-    doc.line(20, 38, 190, 38); // Garis tebal kop
+    doc.line(20, 38, 190, 38);
     doc.setLineWidth(0.2);
-    doc.line(20, 39, 190, 39); // Garis tipis kop
+    doc.line(20, 39, 190, 39);
 
     // 3. JUDUL & NOMOR SURAT
     doc.setFontSize(12);
@@ -117,21 +141,18 @@ const AdminDashboard = () => {
     doc.text(doc.splitTextToSize(closingText, 160), 25, finalTableY);
     doc.text("Wassalamualaikum Warahmatullahi Wabarakatuh.", 25, finalTableY + 15);
 
-    // 6. QR CODE & TANDA TANGAN (KEAMANAN)
+    // 6. QR CODE & TANDA TANGAN
     const signY = finalTableY + 35;
-    
-  
-
     doc.setFontSize(11);
     doc.text("Balapulang, " + new Date().toLocaleDateString('id-ID'), 140, signY);
     doc.text("Kepala Desa Digital,", 140, signY + 7);
     doc.setFont("helvetica", "bold");
-    doc.text("( ANDRA DEVELOPER )", 140, signY + 25); // Nama Pejabat
+    doc.text("( ANDRA DEVELOPER )", 140, signY + 25);
     doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
     doc.text("NIP. 19900101 202605 1 003", 140, signY + 35);
 
-    // 7. FOOTER (Identitas Sistem)
+    // 7. FOOTER
     doc.setDrawColor(230);
     doc.line(20, pageHeight - 15, 190, pageHeight - 15);
     doc.setFontSize(8);
@@ -160,7 +181,6 @@ const AdminDashboard = () => {
     }
   };
 
-  // --- UPDATE FUNGSI DOWNLOAD BERKAS (4 FILE) ---
   const downloadBerkas = (item: any) => {
     const openFile = (path: string) => {
       if (!path) return;
@@ -229,7 +249,12 @@ const AdminDashboard = () => {
             <FileSpreadsheet size={18} className="group-hover:text-emerald-400" /> Export Data
           </button>
         </nav>
-        <button onClick={() => window.location.href = '/'} className="flex items-center gap-3 px-5 py-4 text-slate-500 font-bold hover:text-red-400 transition-all relative z-10 mt-auto">
+        
+        {/* BUTTON LOGOUT FIX */}
+        <button 
+          onClick={handleLogout} 
+          className="flex items-center gap-3 px-5 py-4 text-slate-500 font-bold hover:text-red-400 transition-all relative z-10 mt-auto"
+        >
           <LogOut size={18} /> Logout
         </button>
       </aside>
