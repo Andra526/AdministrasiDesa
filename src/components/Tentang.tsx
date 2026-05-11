@@ -37,7 +37,7 @@ const Tentang = () => {
             </div>
             <h3 className="text-2xl font-bold mb-4 text-slate-800 tracking-tight">Visi Desa</h3>
             <p className="text-slate-500 leading-relaxed italic border-l-4 border-blue-900 pl-4 text-sm md:text-base">
-              "Terwujudnya Desa Banjaranyar yang mandiri, sejahtera, dan terdepan dalam pelayanan administrasi berbasis digital di wilayah Tegal."
+              "Kebersamaan dalam membangun demi Desa Banjaranyar yang lebih maju."
             </p>
           </motion.div>
 
@@ -58,19 +58,19 @@ const Tentang = () => {
                 <div className="w-5 h-5 bg-emerald-100 rounded-full flex items-center justify-center shrink-0 mt-0.5">
                   <div className="w-2 h-2 bg-emerald-500 rounded-full"></div> 
                 </div>
-                <span>Meningkatkan transparansi administrasi desa secara online.</span>
+                <span>Bersama masyarakat memperkuat kelembagaan desa yang ada untuk melayani masyarakat secara optimal.</span>
               </li>
               <li className="flex items-start gap-3">
                 <div className="w-5 h-5 bg-emerald-100 rounded-full flex items-center justify-center shrink-0 mt-0.5">
                   <div className="w-2 h-2 bg-emerald-500 rounded-full"></div> 
                 </div>
-                <span>Mendorong digitalisasi UMKM Banjaranyar agar naik kelas.</span>
+                <span>Bersama masyarakat dan Kelembagaan Desa menyelenggarakan pemerintahan desa dan melaksanakan pembangunan desa yang partisipatif.</span>
               </li>
               <li className="flex items-start gap-3">
                 <div className="w-5 h-5 bg-emerald-100 rounded-full flex items-center justify-center shrink-0 mt-0.5">
                   <div className="w-2 h-2 bg-emerald-500 rounded-full"></div> 
                 </div>
-                <span>Memberikan pelayanan publik yang cepat, tepat, dan ramah warga.</span>
+                <span>Bersama masyarakat dan kelembagaan masyarakat dalam mewujudkan Desa Banjaranyar yang aman, tentram dan damai.</span>
               </li>
             </ul>
           </motion.div>
