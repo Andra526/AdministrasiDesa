@@ -5,6 +5,7 @@ import { User, FileUp, CheckCircle, ArrowLeft, AlertCircle } from 'lucide-react'
 import { StepDataDiri } from './StepDataDiri';
 import { StepUploadBerkas } from './StepUploadBerkas';
 import { StepSelesai } from './StepSelesai';
+import { SpKtpForm } from './SpKtpForm'; // 1. IMPORT FILE BARU
 
 const PengajuanSurat = () => {
   const location = useLocation();
@@ -12,15 +13,21 @@ const PengajuanSurat = () => {
   const [step, setStep] = useState(1);
   const [judulSurat, setJudulSurat] = useState("Surat Keterangan");
   
-  // UPDATE: Menambahkan berkasRT dan berkasSambah ke initial state
   const [formData, setFormData] = useState({
     nama: '', 
     nik: '', 
     alamat: '', 
+    ttl: '',          // Tambahan field untuk SpKtp
+    pekerjaan: '',    // Tambahan field untuk SpKtp
+    pendidikan: '',   // Tambahan field untuk SpKtp
+    status_kawin: '', // Tambahan field untuk SpKtp
+    permohonan_ktp: '', // Baru/Perpanjang/Penggantian
     berkasKtp: null, 
     berkasKk: null,
-    berkasRT: null,      // Tambahan Baru
-    berkasSambah: null,  // Tambahan Baru
+    fc_ktp: null,     // Berkas khusus KTP
+    fc_kk: null,      // Berkas khusus KTP
+    fc_sampah: null,  // Berkas khusus KTP
+    sp_rt: null,      // Berkas khusus KTP
     jenisSurat: '' 
   });
 
@@ -28,10 +35,12 @@ const PengajuanSurat = () => {
     const params = new URLSearchParams(location.search);
     const jenis = params.get('jenis') || 'umum';
     
-    setFormData(prev => ({ ...prev, jenisSurat: jenis.toUpperCase() }));
+    const jenisUpper = jenis.toUpperCase();
+    setFormData(prev => ({ ...prev, jenisSurat: jenisUpper }));
 
     if (jenis === 'sku') setJudulSurat("Surat Keterangan Usaha (SKU)");
     else if (jenis === 'sktm') setJudulSurat("Surat Keterangan Tidak Mampu (SKTM)");
+    else if (jenis === 'ktp') setJudulSurat("Surat Pengantar KTP"); // Sesuaikan jenis di URL
     else if (jenis === 'umum') setJudulSurat("Surat Keterangan Domisili / Umum");
     else if (jenis === 'skck') setJudulSurat("Surat Keterangan Catatan Kepolisian (SKCK)");
     else if (jenis === 'anak') setJudulSurat("Surat Urutan Anak / Akta Kelahiran");
@@ -44,7 +53,6 @@ const PengajuanSurat = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 py-6 md:py-10 px-3 md:px-4 flex flex-col items-center justify-center font-sans">
-      
       <div className="w-full max-w-2xl bg-white rounded-[1.5rem] md:rounded-[2.5rem] shadow-2xl overflow-hidden border border-slate-100">
         
         {/* Header Section */}
@@ -91,7 +99,7 @@ const PengajuanSurat = () => {
         <div className="p-6 md:p-12 bg-[#fcfdfe]">
           <div className="mb-6 p-3 bg-amber-50 border border-amber-100 rounded-xl flex items-start gap-3 text-amber-700 text-xs md:text-sm">
             <AlertCircle size={18} className="shrink-0 mt-0.5" />
-            <p>Pastikan **NIK 16 digit** dan **Nama Lengkap** sesuai dengan KTP asli untuk menghindari penolakan admin.</p>
+            <p>Pastikan data yang dimasukkan sesuai dengan dokumen asli untuk mempercepat proses verifikasi.</p>
           </div>
 
           <AnimatePresence mode="wait">
@@ -102,8 +110,17 @@ const PengajuanSurat = () => {
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3 }}
             >
+              {/* LOGIC PERGANTIAN FORM BERDASARKAN JENIS SURAT */}
               {step === 1 && <StepDataDiri onNext={nextStep} data={formData} setData={setFormData} />}
-              {step === 2 && <StepUploadBerkas onNext={nextStep} onPrev={prevStep} data={formData} setData={setFormData} />}
+              
+              {step === 2 && (
+                formData.jenisSurat === 'KTP' ? (
+                  <SpKtpForm onNext={nextStep} data={formData} setData={setFormData} />
+                ) : (
+                  <StepUploadBerkas onNext={nextStep} onPrev={prevStep} data={formData} setData={setFormData} />
+                )
+              )}
+
               {step === 3 && <StepSelesai formData={formData} />}
             </motion.div>
           </AnimatePresence>
@@ -119,10 +136,6 @@ const PengajuanSurat = () => {
           </div>
         </div>
       </div>
-      
-      <p className="mt-6 text-slate-400 text-[10px] text-center px-4">
-        Sistem Administrasi Desa Otomatis © 2026 - Digital Desa Balapulang
-      </p>
     </div>
   );
 };

@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import imgHero from '../img/foto depan balaidesa.jpeg';
 import { ChevronRight, ShieldCheck } from 'lucide-react';
 
 const Hero = () => {
@@ -37,7 +38,7 @@ const Hero = () => {
           className="relative hidden lg:block"
         >
           <img 
-            src="https://images.unsplash.com/photo-1577412647305-991150c7d163?q=80&w=1200" 
+            src={imgHero}
             className="rounded-[3rem] shadow-2xl border-[12px] border-white object-cover h-[500px] w-full"
             alt="Banjaranyar Digital" 
           />

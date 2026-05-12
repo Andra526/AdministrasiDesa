@@ -9,35 +9,22 @@ const Navbar = () => {
   const location = useLocation();
   const waNumber = "6288220007296";
 
-  // FUNGSI HANDLE SCROLL YANG SUDAH DIPERBAIKI
   const handleScroll = (id: string) => {
-    // 1. Tutup menu mobile dulu
     setIsOpen(false); 
-
     const executeScroll = () => {
-      // 2. BERI DELAY (200ms) - Sangat krusial untuk mobile agar animasi tutup menu selesai dulu
       setTimeout(() => {
         const element = document.getElementById(id);
         if (element) {
-          // Offset ditingkatkan ke -100 agar judul section tidak terlalu mepet navbar
           const yOffset = -100; 
           const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-          
-          window.scrollTo({ 
-            top: y, 
-            behavior: 'smooth' 
-          });
+          window.scrollTo({ top: y, behavior: 'smooth' });
         }
       }, 200); 
     };
 
-    // 3. Logika pindah halaman jika sedang tidak di Home
     if (location.pathname !== '/') {
       navigate('/');
-      // Delay lebih lama (400ms) jika harus pindah halaman dulu agar React selesai render
-      setTimeout(() => {
-        executeScroll();
-      }, 400);
+      setTimeout(() => { executeScroll(); }, 400);
     } else {
       executeScroll();
     }
@@ -80,6 +67,13 @@ const Navbar = () => {
                   Surat Izin Usaha (SKU)
                   <span className="block text-[10px] font-medium text-slate-400 uppercase tracking-tighter">Legalitas UMKM</span>
                 </Link>
+                
+                {/* TAMBAHAN: SURAT PENGANTAR KTP DESKTOP */}
+                <Link to="/pengajuan?jenis=ktp" className="block p-3 hover:bg-blue-50 rounded-xl transition-colors font-bold text-slate-700 hover:text-blue-900 border-t border-slate-50">
+                  Surat Pengantar KTP
+                  <span className="block text-[10px] font-medium text-slate-400 uppercase tracking-tighter">Baru / Perpanjang / Hilang</span>
+                </Link>
+
                 <Link to="/pengajuan?jenis=pindah" className="block p-3 hover:bg-blue-50 rounded-xl transition-colors font-bold text-slate-700 hover:text-blue-900 border-t border-slate-50">
                   Surat Pindah
                   <span className="block text-[10px] font-medium text-slate-400 uppercase tracking-tighter">Keterangan Tinggal</span>
@@ -138,12 +132,15 @@ const Navbar = () => {
                 <span className="text-[10px] font-black text-blue-900 uppercase tracking-widest mb-1">Pelayanan Administratif</span>
                 <Link to="/pengajuan?jenis=sktm" onClick={() => setIsOpen(false)} className="py-1 text-sm font-bold text-slate-500 hover:text-blue-900">- Surat Keterangan (SKTM)</Link>
                 <Link to="/pengajuan?jenis=sku" onClick={() => setIsOpen(false)} className="py-1 text-sm font-bold text-slate-500 hover:text-blue-900">- Surat Izin Usaha (SKU)</Link>
+                
+                {/* TAMBAHAN: SURAT PENGANTAR KTP MOBILE */}
+                <Link to="/pengajuan?jenis=ktp" onClick={() => setIsOpen(false)} className="py-1 text-sm font-bold text-slate-500 hover:text-blue-900">- Surat Pengantar KTP</Link>
+                
                 <Link to="/pengajuan?jenis=umum" onClick={() => setIsOpen(false)} className="py-1 text-sm font-bold text-slate-500 hover:text-blue-900">- Surat Domisili (Umum)</Link>
                 <Link to="/pengajuan?jenis=skck" onClick={() => setIsOpen(false)} className="py-1 text-sm font-bold text-slate-500 hover:text-blue-900">- Surat Keterangan SKCK</Link>
                 <Link to="/pengajuan?jenis=anak" onClick={() => setIsOpen(false)} className="py-1 text-sm font-bold text-slate-500 hover:text-blue-900">- Surat Urutan Anak</Link>
               </div>
 
-              {/* Tombol yang diperbaiki eksekusinya */}
               <button 
                 onClick={() => handleScroll('pelayanan')} 
                 className="w-full text-left p-3 text-sm font-bold text-slate-700 hover:bg-slate-50 rounded-xl transition-all"
