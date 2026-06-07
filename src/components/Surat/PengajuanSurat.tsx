@@ -5,7 +5,7 @@ import { User, FileUp, CheckCircle, ArrowLeft, AlertCircle } from 'lucide-react'
 import { StepDataDiri } from './StepDataDiri';
 import { StepUploadBerkas } from './StepUploadBerkas';
 import { StepSelesai } from './StepSelesai';
-import { SpKtpForm } from './SpKtpForm'; // 1. IMPORT FILE BARU
+import { SpKtpForm } from './SpKtpForm';
 
 const PengajuanSurat = () => {
   const location = useLocation();
@@ -13,21 +13,28 @@ const PengajuanSurat = () => {
   const [step, setStep] = useState(1);
   const [judulSurat, setJudulSurat] = useState("Surat Keterangan");
   
+  // State diperbarui dengan semua field yang diperlukan untuk semua jenis surat
   const [formData, setFormData] = useState({
     nama: '', 
     nik: '', 
     alamat: '', 
-    ttl: '',          // Tambahan field untuk SpKtp
-    pekerjaan: '',    // Tambahan field untuk SpKtp
-    pendidikan: '',   // Tambahan field untuk SpKtp
-    status_kawin: '', // Tambahan field untuk SpKtp
-    permohonan_ktp: '', // Baru/Perpanjang/Penggantian
+    ttl: '', 
+    pekerjaan: '', 
+    agama: '', 
+    kewarganegaraan: '', 
+    keperluan: '', 
+    keterangan: '', 
+    jenis_kelamin: '',
+    golongan_darah: '',
+    pendidikan: '',
+    status_kawin: '',
+    permohonan_ktp: '', 
     berkasKtp: null, 
     berkasKk: null,
-    fc_ktp: null,     // Berkas khusus KTP
-    fc_kk: null,      // Berkas khusus KTP
-    fc_sampah: null,  // Berkas khusus KTP
-    sp_rt: null,      // Berkas khusus KTP
+    fc_ktp: null, 
+    fc_kk: null, 
+    fc_sampah: null, 
+    sp_rt: null, 
     jenisSurat: '' 
   });
 
@@ -40,7 +47,7 @@ const PengajuanSurat = () => {
 
     if (jenis === 'sku') setJudulSurat("Surat Keterangan Usaha (SKU)");
     else if (jenis === 'sktm') setJudulSurat("Surat Keterangan Tidak Mampu (SKTM)");
-    else if (jenis === 'ktp') setJudulSurat("Surat Pengantar KTP"); // Sesuaikan jenis di URL
+    else if (jenis === 'ktp') setJudulSurat("Surat Pengantar KTP");
     else if (jenis === 'umum') setJudulSurat("Surat Keterangan Domisili / Umum");
     else if (jenis === 'skck') setJudulSurat("Surat Keterangan Catatan Kepolisian (SKCK)");
     else if (jenis === 'anak') setJudulSurat("Surat Urutan Anak / Akta Kelahiran");
@@ -110,7 +117,6 @@ const PengajuanSurat = () => {
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3 }}
             >
-              {/* LOGIC PERGANTIAN FORM BERDASARKAN JENIS SURAT */}
               {step === 1 && <StepDataDiri onNext={nextStep} data={formData} setData={setFormData} />}
               
               {step === 2 && (

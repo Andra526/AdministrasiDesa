@@ -13,7 +13,7 @@ export const StepUploadBerkas = ({ onNext, onPrev, data, setData }: any) => {
   };
 
   const handleUploadAndSubmit = async () => {
-    // Validasi dasar: Minimal KTP dan KK harus ada
+    // Validasi dasar
     if (!data.berkasKtp || !data.berkasKk) {
       alert("Harap unggah minimal KTP & KK terlebih dahulu.");
       return;
@@ -22,7 +22,7 @@ export const StepUploadBerkas = ({ onNext, onPrev, data, setData }: any) => {
     setIsUploading(true);
 
     try {
-      // Fungsi Helper untuk Upload ke Supabase Storage
+      // Fungsi Helper untuk Upload
       const uploadFile = async (file: File, folder: string) => {
         const fileExt = file.name.split('.').pop();
         const fileName = `${Date.now()}_${data.nik}_${folder}.${fileExt}`;
@@ -34,41 +34,49 @@ export const StepUploadBerkas = ({ onNext, onPrev, data, setData }: any) => {
         return res.path;
       };
 
-      // 1. Upload semua berkas secara paralel
+      // 1. Upload semua berkas
       const [pathKtp, pathKk] = await Promise.all([
         uploadFile(data.berkasKtp, 'ktp'),
         uploadFile(data.berkasKk, 'kk')
       ]);
 
-      // 2. Upload berkas opsional jika ada
-      let pathRT = data.berkasRT ? await uploadFile(data.berkasRT, 'surat_rt') : null;
-      let pathSambah = data.berkasSambah ? await uploadFile(data.berkasSambah, 'kartu_sambah') : null;
+      const pathRT = data.berkasRT ? await uploadFile(data.berkasRT, 'surat_rt') : null;
+      const pathSampah = data.berkasSampah ? await uploadFile(data.berkasSampah, 'kartu_sampah') : null;
 
-      // 3. Simpan data ke Database
+      // 2. Simpan ke Database
       const { error: dbErr } = await supabase
         .from('pengajuan_surat') 
         .insert([{
           nama: data.nama,
           nik: data.nik,
-          jenis_surat: data.jenisSurat,
+          jenis_surat: data.jenisSurat || data.jenis_surat,
           alamat: data.alamat,
+          ttl: data.ttl || null,
+          agama: data.agama || null,
+          pekerjaan: data.pekerjaan || null,
+          pendidikan: data.pendidikan || null,
+          status_kawin: data.status_kawin || null,
+          jenis_kelamin: data.jenis_kelamin || null,
+          golongan_darah: data.golongan_darah || null,
+          
+          // Nama kolom di bawah ini HARUS sama dengan yang ada di Supabase
           url_ktp: pathKtp,
           url_kk: pathKk,
           url_surat_rt: pathRT,
-          url_kartu_sambah: pathSambah,
-          status: 'pending',
-          created_at: new Date().toISOString()
+          url_kartu_sampah: pathSampah, // <--- Sudah diperbaiki ke 'sampah'
+          
+          status: 'pending'
         }]);
 
       if (dbErr) throw dbErr;
 
-      // 4. Update state global sebelum pindah step
+      // 3. Update state global
       setData({ 
         ...data, 
         url_ktp: pathKtp, 
         url_kk: pathKk,
         url_surat_rt: pathRT,
-        url_kartu_sambah: pathSambah
+        url_kartu_sampah: pathSampah
       });
 
       onNext(); 
@@ -81,7 +89,6 @@ export const StepUploadBerkas = ({ onNext, onPrev, data, setData }: any) => {
     }
   };
 
-  // Komponen Reusable untuk Kotak Upload agar kode lebih bersih
   const UploadBox = ({ field, label, fileData }: any) => (
     <label className={`border-2 border-dashed p-6 rounded-[2rem] text-center transition-all cursor-pointer group block ${fileData ? 'border-emerald-400 bg-emerald-50/30' : 'border-slate-200 hover:border-blue-400 hover:bg-blue-50/30'}`}>
       {fileData ? (
@@ -98,42 +105,22 @@ export const StepUploadBerkas = ({ onNext, onPrev, data, setData }: any) => {
   );
 
   return (
-    <motion.div 
-      initial={{ x: 20, opacity: 0 }} 
-      animate={{ x: 0, opacity: 1 }} 
-      exit={{ x: -20, opacity: 0 }} 
-      className="space-y-6"
-    >
+    <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: -20, opacity: 0 }} className="space-y-6">
       <div className="text-sm font-black text-slate-800 uppercase tracking-widest border-l-4 border-blue-600 pl-3">
-         Upload Dokumen Pendukung
+        Upload Dokumen Pendukung
       </div>
-
       <div className="grid grid-cols-2 gap-4">
         <UploadBox field="berkasKtp" label="Foto KTP" fileData={data.berkasKtp} />
         <UploadBox field="berkasKk" label="Foto KK" fileData={data.berkasKk} />
         <UploadBox field="berkasRT" label="Surat Pengantar RT" fileData={data.berkasRT} />
         <UploadBox field="berkasSampah" label="Kartu Sampah" fileData={data.berkasSampah} />
       </div>
-
       <div className="flex gap-3 pt-4">
-        <button 
-          onClick={onPrev} 
-          disabled={isUploading}
-          className="flex-1 py-4 bg-slate-100 text-slate-600 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-slate-200 transition-all disabled:opacity-50"
-        >
+        <button onClick={onPrev} disabled={isUploading} className="flex-1 py-4 bg-slate-100 text-slate-600 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-slate-200 transition-all disabled:opacity-50">
           <ArrowLeft size={18} /> Kembali
         </button>
-        
-        <button 
-          onClick={handleUploadAndSubmit} 
-          disabled={isUploading}
-          className="flex-[2] py-4 bg-blue-900 text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-blue-800 transition-all shadow-lg shadow-blue-100 disabled:bg-blue-400"
-        >
-          {isUploading ? (
-            <>Memproses... <Loader2 size={18} className="animate-spin" /></>
-          ) : (
-            <>Kirim Permohonan <Send size={18} /></>
-          )}
+        <button onClick={handleUploadAndSubmit} disabled={isUploading} className="flex-[2] py-4 bg-blue-900 text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-blue-800 transition-all shadow-lg shadow-blue-100 disabled:bg-blue-400">
+          {isUploading ? <>Memproses... <Loader2 size={18} className="animate-spin" /></> : <>Kirim Permohonan <Send size={18} /></>}
         </button>
       </div>
     </motion.div>

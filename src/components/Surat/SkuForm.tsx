@@ -4,22 +4,27 @@ export const SkuForm = ({ onNext, setData }: { onNext: () => void, setData: (dat
   const [formData, setLocalFormData] = useState({
     nama: '',
     nik: '',
-    ttl: '',       // Tempat Tanggal Lahir
-    pekerjaan: '', // Pekerjaan
-    alamat: '',    
-    usaha: ''      
+    ttl: '',
+    pekerjaan: '',
+    alamat: '',
+    usaha: ''
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Menyimpan data ke state global dengan menyesuaikan nama kolom di database
     setData((prev: any) => ({
       ...prev,
-      nama_lengkap: formData.nama,
+      nama: formData.nama,
       nik: formData.nik,
-      // Data digabung agar masuk ke kolom 'keperluan' di database
-      keperluan: `TTL: ${formData.ttl}, Pekerjaan: ${formData.pekerjaan}, Usaha: ${formData.usaha}, Alamat: ${formData.alamat}`,
-      jenis_surat: 'SKU' 
+      ttl: formData.ttl,
+      pekerjaan: formData.pekerjaan,
+      alamat: formData.alamat,
+      nama_usaha: formData.usaha, // Mengisi kolom nama_usaha
+      jenis_surat: 'SKU',
+      // Tetap menyimpan ringkasan di kolom keperluan jika dibutuhkan untuk tampilan/print
+      keperluan: `Usaha: ${formData.usaha}, Alamat: ${formData.alamat}`
     }));
 
     onNext();
@@ -28,7 +33,6 @@ export const SkuForm = ({ onNext, setData }: { onNext: () => void, setData: (dat
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {/* Input Nama */}
         <input 
           type="text" 
           placeholder="Nama Lengkap (Sesuai KTP)" 
@@ -37,7 +41,6 @@ export const SkuForm = ({ onNext, setData }: { onNext: () => void, setData: (dat
           onChange={(e) => setLocalFormData({...formData, nama: e.target.value})} 
           required 
         />
-        {/* Input NIK */}
         <input 
           type="text" 
           placeholder="NIK (16 Digit)" 
@@ -46,7 +49,6 @@ export const SkuForm = ({ onNext, setData }: { onNext: () => void, setData: (dat
           onChange={(e) => setLocalFormData({...formData, nik: e.target.value})} 
           required 
         />
-        {/* INPUT BARU: Tempat Tanggal Lahir */}
         <input 
           type="text" 
           placeholder="Tempat, Tanggal Lahir" 
@@ -55,7 +57,6 @@ export const SkuForm = ({ onNext, setData }: { onNext: () => void, setData: (dat
           onChange={(e) => setLocalFormData({...formData, ttl: e.target.value})} 
           required 
         />
-        {/* INPUT BARU: Pekerjaan */}
         <input 
           type="text" 
           placeholder="Pekerjaan" 
@@ -66,7 +67,6 @@ export const SkuForm = ({ onNext, setData }: { onNext: () => void, setData: (dat
         />
       </div>
 
-      {/* Input Nama Usaha */}
       <input 
         type="text" 
         placeholder="Nama / Jenis Usaha (Contoh: Peternak Sapi)" 
@@ -76,7 +76,6 @@ export const SkuForm = ({ onNext, setData }: { onNext: () => void, setData: (dat
         required 
       />
 
-      {/* Input Alamat */}
       <textarea 
         placeholder="Alamat Lengkap (Sesuai KTP)" 
         className="w-full p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-blue-600 min-h-[100px] transition-all font-medium text-slate-700"

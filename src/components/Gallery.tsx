@@ -3,13 +3,14 @@ import { Camera, Map } from 'lucide-react';
 import imgadministrasi from '../img/administrasi.jpeg';
 import imgRapat from '../img/rapat.jpeg';
 import imgSosialisasi from '../img/sosialisasi.jpeg';
+import imgUMKM from '../img/umkm.jpeg';
 
 const Gallery = () => {
   const photos = [
     { id: 1, title: "Rapat Desa", category: "Administrasi", url: imgRapat },
     { id: 2, title: "Layanan Balai Desa", category: "Digital", url: imgadministrasi },
     { id: 3, title: "Sosialisasi Program", category: "Pemberdayaan", url: imgSosialisasi },
-    { id: 4, title: "UNKM Program", category: "UMKM", url: imgSosialisasi },
+    { id: 4, title: "UNKM Program", category: "UMKM", url: imgUMKM },
 
   ];
 
