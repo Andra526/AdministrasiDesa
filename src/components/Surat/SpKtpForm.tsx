@@ -1,12 +1,12 @@
 import { motion } from 'framer-motion';
-import { ArrowRight, FileText, Upload, Users, User, Trash2, Droplets, Heart } from 'lucide-react';
+import { ArrowRight, FileText, Upload, Users, User, Trash2 } from 'lucide-react';
 
-export const SpKtpForm = ({ onNext, data, setData }: any) => {
+// Menambahkan props isSubmitting agar tombol bisa disable saat proses kirim
+export const SpKtpForm = ({ onNext, data, setData, isSubmitting }: any) => {
   
   const inputStyle = "w-full p-4 bg-slate-50 border border-transparent rounded-[1.2rem] focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none transition-all placeholder:text-slate-400 text-slate-700 font-medium shadow-inner text-sm";
   const labelStyle = "text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2 mb-1 block";
 
-  // Helper untuk update data (silently handling state)
   const handleChange = (field: string, value: any) => {
     setData({ ...data, [field]: value });
   };
@@ -33,16 +33,17 @@ export const SpKtpForm = ({ onNext, data, setData }: any) => {
         </div>
       </div>
 
-      {/* SECTION 2: DATA DETAIL (SESUAI FORM FISIK BANJARANYAR) */}
+      {/* SECTION 2: DATA DETAIL */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
         <div className="space-y-1">
           <label className={labelStyle}>Tempat, Tanggal Lahir</label>
-          <input type="text" placeholder="Tegal, 10-02-2005" className={inputStyle} value={data.ttl} onChange={(e) => handleChange('ttl', e.target.value)} />
+          <input type="text" placeholder="Tegal, 10-02-2005" className={inputStyle} value={data.ttl || ''} onChange={(e) => handleChange('ttl', e.target.value)} />
         </div>
 
         <div className="space-y-1">
           <label className={labelStyle}>Jenis Kelamin</label>
-          <select className={inputStyle} value={data.jenis_kelamin} onChange={(e) => handleChange('jenis_kelamin', e.target.value)}>
+          <select className={inputStyle} value={data.jenis_kelamin || ''} onChange={(e) => handleChange('jenis_kelamin', e.target.value)}>
+            <option value="">Pilih Jenis Kelamin</option>
             <option value="Laki-laki">Laki-laki</option>
             <option value="Perempuan">Perempuan</option>
           </select>
@@ -50,27 +51,28 @@ export const SpKtpForm = ({ onNext, data, setData }: any) => {
 
         <div className="space-y-1">
           <label className={labelStyle}>Golongan Darah</label>
-          <input type="text" placeholder="-" className={inputStyle} value={data.golongan_darah} onChange={(e) => handleChange('golongan_darah', e.target.value)} />
+          <input type="text" placeholder="-" className={inputStyle} value={data.golongan_darah || ''} onChange={(e) => handleChange('golongan_darah', e.target.value)} />
         </div>
 
         <div className="space-y-1">
           <label className={labelStyle}>Agama</label>
-          <input type="text" placeholder="Islam" className={inputStyle} value={data.agama} onChange={(e) => handleChange('agama', e.target.value)} />
+          <input type="text" placeholder="Islam" className={inputStyle} value={data.agama || ''} onChange={(e) => handleChange('agama', e.target.value)} />
         </div>
 
         <div className="space-y-1">
           <label className={labelStyle}>Pekerjaan</label>
-          <input type="text" placeholder="Pelajar/Mahasiswa" className={inputStyle} value={data.pekerjaan} onChange={(e) => handleChange('pekerjaan', e.target.value)} />
+          <input type="text" placeholder="Pelajar/Mahasiswa" className={inputStyle} value={data.pekerjaan || ''} onChange={(e) => handleChange('pekerjaan', e.target.value)} />
         </div>
 
         <div className="space-y-1">
           <label className={labelStyle}>Pendidikan</label>
-          <input type="text" placeholder="Tamat SD/Sederajat" className={inputStyle} value={data.pendidikan} onChange={(e) => handleChange('pendidikan', e.target.value)} />
+          <input type="text" placeholder="Tamat SD/Sederajat" className={inputStyle} value={data.pendidikan || ''} onChange={(e) => handleChange('pendidikan', e.target.value)} />
         </div>
 
         <div className="space-y-1 md:col-span-2">
           <label className={labelStyle}>Status Perkawinan</label>
-          <select className={inputStyle} value={data.status_kawin} onChange={(e) => handleChange('status_kawin', e.target.value)}>
+          <select className={inputStyle} value={data.status_kawin || ''} onChange={(e) => handleChange('status_kawin', e.target.value)}>
+            <option value="">Pilih Status</option>
             <option value="Belum Kawin">Belum Kawin</option>
             <option value="Kawin">Kawin</option>
             <option value="Cerai Hidup">Cerai Hidup</option>
@@ -79,7 +81,7 @@ export const SpKtpForm = ({ onNext, data, setData }: any) => {
         </div>
       </div>
 
-      {/* SECTION 3: UPLOAD BERKAS KHUSUS */}
+      {/* SECTION 3: UPLOAD BERKAS */}
       <div className="space-y-4">
         <h3 className="text-[10px] font-black text-slate-800 uppercase tracking-wider flex items-center gap-2">
           <Upload size={14} className="text-blue-600" /> Berkas Persyaratan (Foto/Scan)
@@ -116,10 +118,11 @@ export const SpKtpForm = ({ onNext, data, setData }: any) => {
 
       <button 
         onClick={onNext}
-        className="w-full py-5 bg-blue-900 text-white rounded-[1.5rem] font-black shadow-xl shadow-blue-200 flex items-center justify-center gap-3 group transition-all active:scale-95"
+        disabled={isSubmitting}
+        className="w-full py-5 bg-blue-900 text-white rounded-[1.5rem] font-black shadow-xl shadow-blue-200 flex items-center justify-center gap-3 group transition-all active:scale-95 disabled:opacity-50"
       >
-        KIRIM PERMOHONAN KTP
-        <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+        {isSubmitting ? "MENGIRIM..." : "KIRIM PERMOHONAN KTP"}
+        {!isSubmitting && <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />}
       </button>
     </motion.div>
   );

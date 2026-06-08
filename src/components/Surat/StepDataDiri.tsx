@@ -156,4 +156,4 @@ export const StepDataDiri = ({ onNext, data, setData }: any) => {
       </p>
     </motion.div>
   );
-};
+};  
