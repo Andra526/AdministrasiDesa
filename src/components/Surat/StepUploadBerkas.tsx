@@ -44,29 +44,37 @@ export const StepUploadBerkas = ({ onNext, onPrev, data, setData }: any) => {
       const pathSampah = data.berkasSampah ? await uploadFile(data.berkasSampah, 'kartu_sampah') : null;
 
       // 2. Simpan ke Database
-      const { error: dbErr } = await supabase
-        .from('pengajuan_surat') 
-        .insert([{
-          nama: data.nama,
-          nik: data.nik,
-          jenis_surat: data.jenisSurat || data.jenis_surat,
-          alamat: data.alamat,
-          ttl: data.ttl || null,
-          agama: data.agama || null,
-          pekerjaan: data.pekerjaan || null,
-          pendidikan: data.pendidikan || null,
-          status_kawin: data.status_kawin || null,
-          jenis_kelamin: data.jenis_kelamin || null,
-          golongan_darah: data.golongan_darah || null,
-          
-          // Nama kolom di bawah ini HARUS sama dengan yang ada di Supabase
-          url_ktp: pathKtp,
-          url_kk: pathKk,
-          url_surat_rt: pathRT,
-          url_kartu_sampah: pathSampah, // <--- Sudah diperbaiki ke 'sampah'
-          
-          status: 'pending'
-        }]);
+// Pastikan kolom-kolom ini sudah ada di tabel Supabase Anda.
+// Jika kolom belum ada, HAPUS barisnya dari kode di bawah ini.
+const { error: dbErr } = await supabase
+  .from('pengajuan_surat') 
+  .insert([{
+    nama: data.nama,
+    nik: data.nik,
+    jenis_surat: data.jenisSurat || data.jenis_surat,
+    alamat: data.alamat,
+    ttl: data.ttl || null,
+    agama: data.agama || null,
+    pekerjaan: data.pekerjaan || null,
+    pendidikan: data.pendidikan || null,
+    status_kawin: data.status_kawin || null,
+    jenis_kelamin: data.jenis_kelamin || null,
+    golongan_darah: data.golongan_darah || null,
+    
+    // Hanya masukkan kolom yang sudah pasti ada di Supabase
+    // Jika salah satu di bawah error "Could not find column", 
+    // hapus baris tersebut dari sini.
+    kewarganegaraan: data.kewarganegaraan || null, 
+    keterangan_lain: data.keterangan_lain || null,
+    keperluan: data.keperluan || null,
+    
+    url_ktp: pathKtp,
+    url_kk: pathKk,
+    url_surat_rt: pathRT,
+    url_kartu_sampah: pathSampah,
+    
+    status: 'pending'
+  }]);
 
       if (dbErr) throw dbErr;
 

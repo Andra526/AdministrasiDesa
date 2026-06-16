@@ -35,7 +35,7 @@ const AdminDashboard = () => {
 
     checkUser();
 
-    // Realtime listener agar dashboard update otomatis
+    // Realtime listener
     const channel = supabase
       .channel('db-realtime')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'pengajuan_surat' }, () => fetchData())
@@ -64,7 +64,7 @@ const AdminDashboard = () => {
     }
   };
 
-  // --- FUNGSI CETAK PDF FORMAL (Dinamis) ---
+  // --- FUNGSI CETAK PDF FORMAL ---
   const generatePDF = async (item: any) => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -74,7 +74,7 @@ const AdminDashboard = () => {
     doc.setTextColor(245, 245, 245); 
     doc.setFontSize(60);
     doc.setFont("helvetica", "bold");
-    doc.text("DOKUMEN ASLI", pageWidth / 2, pageHeight / 2, { align: "center", angle: 45 });
+    
 
     // 2. Kop Surat
     doc.setTextColor(0, 0, 0);
@@ -92,15 +92,18 @@ const AdminDashboard = () => {
 
     // 3. Judul
     doc.setFontSize(12);
-    doc.setFont("helvetica", "bold", "underline");
-    doc.text(`SURAT KETERANGAN: ${item.jenis_surat?.toUpperCase() || 'LAYANAN'}`, pageWidth / 2, 50, { align: "center" });
+    const judulText = `SURAT KETERANGAN: ${item.jenis_surat?.toUpperCase() || 'LAYANAN'}`;
+    doc.setFont("helvetica", "bold");
+    doc.text(judulText, pageWidth / 2, 50, { align: "center" });
+    const judulWidth = doc.getTextWidth(judulText);
+    doc.line(pageWidth / 2 - judulWidth / 2, 51.5, pageWidth / 2 + judulWidth / 2, 51.5);
     doc.setFont("helvetica", "normal");
     doc.text(`Nomor: ${item.id?.substring(0, 8) || 'XXXX'}/KDS/${new Date().getFullYear()}`, pageWidth / 2, 57, { align: "center" });
 
     doc.setFontSize(11);
     doc.text("Yang bertanda tangan di bawah ini Kepala Desa Digital menerangkan bahwa:", 25, 70);
 
-    // 4. Tabel Data (Dinamis - hanya menambah baris jika data ada)
+    // 4. Tabel Data
     const bodyData = [
       ['Nama Lengkap', ':', item.nama || '-'],
       ['NIK', ':', item.nik || '-'],
@@ -108,12 +111,13 @@ const AdminDashboard = () => {
 
     if (item.ttl) bodyData.push(['Tempat, Tgl Lahir', ':', item.ttl]);
     if (item.jenis_kelamin) bodyData.push(['Jenis Kelamin', ':', item.jenis_kelamin]);
-    if (item.agama) bodyData.push(['Agama', ':', item.agama]);
     if (item.pekerjaan) bodyData.push(['Pekerjaan', ':', item.pekerjaan]);
     if (item.pendidikan) bodyData.push(['Pendidikan', ':', item.pendidikan]);
     if (item.status_kawin) bodyData.push(['Status Perkawinan', ':', item.status_kawin]);
+    if (item.agama) bodyData.push(['Agama', ':', item.agama]);
+    if (item.kewarganegaraan) bodyData.push(['Kewarganegaraan', ':', item.kewarganegaraan]);
+    if (item.alamat_domisili) bodyData.push(['Alamat Domisili', ':', item.alamat_domisili]);
     if (item.alamat) bodyData.push(['Alamat', ':', item.alamat]);
-    if (item.keperluan) bodyData.push(['Keperluan', ':', item.keperluan]);
 
     autoTable(doc, {
       startY: 75,
@@ -129,17 +133,30 @@ const AdminDashboard = () => {
     });
 
     const finalTableY = (doc as any).lastAutoTable.finalY + 10;
-    
-    const closingText = "Demikian surat keterangan ini dibuat dengan sebenarnya untuk dapat dipergunakan sebagaimana mestinya. Atas perhatiannya kami ucapkan terima kasih.";
-    doc.text(doc.splitTextToSize(closingText, 160), 25, finalTableY);
 
-    const signY = finalTableY + 25;
+    // Paragraf pernyataan
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(11);
+   
+
+    // Baris Keperluan
+    const keperluanY = finalTableY + 12;
+    doc.setFont("helvetica", "bold");
+    doc.text("Keperluan", 25, keperluanY);
+    doc.setFont("helvetica", "normal");
+    doc.text(`: ${item.keperluan || '-'}`, 55, keperluanY);
+
+    // Paragraf penutup
+    const closingText = "Demikian surat keterangan ini dibuat dengan sebenarnya untuk dapat dipergunakan sebagaimana mestinya. Atas perhatiannya kami ucapkan terima kasih.";
+    const closingY = keperluanY + 12;
+    doc.text(doc.splitTextToSize(closingText, 160), 25, closingY);
+
+    // Tanda Tangan (Dikosongkan)
+    const signY = closingY + 25;
     doc.text("Balapulang, " + new Date().toLocaleDateString('id-ID'), 130, signY);
     doc.text("Kepala Desa Digital,", 130, signY + 7);
-    doc.setFont("helvetica", "bold");
-    doc.text("( ANDRA DEVELOPER )", 130, signY + 30);
-    doc.setFontSize(9);
-    doc.text("NIP. 19900101 202605 1 003", 130, signY + 35);
+    // Ruang untuk tanda tangan basah
+    doc.text("", 130, signY + 30); 
 
     doc.save(`Surat_${item.jenis_surat || 'Dokumen'}_${item.nama || 'Warga'}.pdf`);
   };

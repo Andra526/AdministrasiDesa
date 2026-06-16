@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ArrowRight, FileText, Upload, Users, User, Trash2, Loader2 } from 'lucide-react';
+import { ArrowRight, FileText, Upload, Users, User, Trash2, Loader2, MapPin } from 'lucide-react';
 import { useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 
@@ -46,8 +46,9 @@ export const SpKtpForm = ({ onNext, data, setData }: any) => {
         .insert([{
           nama: data.nama,
           nik: data.nik,
-          jenis_surat: data.jenisSurat || 'KTP',
+          jenis_surat: 'KTP',
           alamat: data.alamat,
+          alamat_domisili: data.alamat_domisili || null, // Field Baru
           ttl: data.ttl || null,
           agama: data.agama || null,
           pekerjaan: data.pekerjaan || null,
@@ -55,7 +56,8 @@ export const SpKtpForm = ({ onNext, data, setData }: any) => {
           status_kawin: data.status_kawin || null,
           jenis_kelamin: data.jenis_kelamin || null,
           golongan_darah: data.golongan_darah || null,
-          keperluan: data.permohonan_ktp || 'Baru',
+          // Menggabungkan tipe permohonan ke dalam field keperluan
+          keperluan: `Permohonan KTP: ${data.permohonan_ktp || 'Baru'}`, 
           
           url_ktp: pathKtp,
           url_kk: pathKk,
@@ -67,16 +69,7 @@ export const SpKtpForm = ({ onNext, data, setData }: any) => {
 
       if (dbErr) throw dbErr;
 
-      setData({ 
-        ...data, 
-        url_ktp: pathKtp, 
-        url_kk: pathKk,
-        url_surat_rt: pathRT,
-        url_kartu_sampah: pathSampah
-      });
-
       onNext(); 
-
     } catch (error: any) {
       console.error("Error Detail:", error);
       alert(`Terjadi kesalahan: ${error.message || "Gagal mengirim data"}`);
@@ -86,10 +79,7 @@ export const SpKtpForm = ({ onNext, data, setData }: any) => {
   };
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-      className="space-y-8"
-    >
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
       {/* SECTION 1: JENIS PERMOHONAN */}
       <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm space-y-4">
         <label className={labelStyle}>Permohonan KTP</label>
@@ -112,6 +102,14 @@ export const SpKtpForm = ({ onNext, data, setData }: any) => {
         <div className="space-y-1">
           <label className={labelStyle}>Tempat, Tanggal Lahir</label>
           <input type="text" placeholder="Tegal, 10-02-2005" className={inputStyle} value={data.ttl || ''} onChange={(e) => handleChange('ttl', e.target.value)} />
+        </div>
+
+        <div className="space-y-1">
+          <label className={labelStyle}>Alamat Domisili</label>
+          <div className="relative">
+            <MapPin className="absolute left-4 top-4 text-slate-400" size={16} />
+            <input type="text" placeholder="Jl. Contoh No. 123" className={`${inputStyle} pl-11`} value={data.alamat_domisili || ''} onChange={(e) => handleChange('alamat_domisili', e.target.value)} />
+          </div>
         </div>
 
         <div className="space-y-1">
@@ -176,11 +174,7 @@ export const SpKtpForm = ({ onNext, data, setData }: any) => {
                   </div>
                   <span className="text-[10px] font-bold text-slate-600 uppercase">{berkas.label}</span>
                 </div>
-                <input 
-                  type="file" 
-                  className="hidden" 
-                  onChange={(e) => handleChange(berkas.id, e.target.files?.[0])} 
-                />
+                <input type="file" className="hidden" onChange={(e) => handleChange(berkas.id, e.target.files?.[0])} />
                 <div className={`text-[9px] px-2 py-1 rounded-md font-black ${data[berkas.id] ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
                   {data[berkas.id] ? 'TERPILIH' : 'UPLOAD'}
                 </div>

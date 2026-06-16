@@ -13,7 +13,7 @@ export const SkuForm = ({ onNext, setData }: { onNext: () => void, setData: (dat
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Menyimpan data ke state global dengan menyesuaikan nama kolom di database
+    // Menyimpan data ke state global
     setData((prev: any) => ({
       ...prev,
       nama: formData.nama,
@@ -21,10 +21,18 @@ export const SkuForm = ({ onNext, setData }: { onNext: () => void, setData: (dat
       ttl: formData.ttl,
       pekerjaan: formData.pekerjaan,
       alamat: formData.alamat,
-      nama_usaha: formData.usaha, // Mengisi kolom nama_usaha
+      nama_usaha: formData.usaha,
       jenis_surat: 'SKU',
-      // Tetap menyimpan ringkasan di kolom keperluan jika dibutuhkan untuk tampilan/print
-      keperluan: `Usaha: ${formData.usaha}, Alamat: ${formData.alamat}`
+      keperluan: `Usaha: ${formData.usaha}, Alamat: ${formData.alamat}`,
+      
+      // PENTING: Reset field yang tidak digunakan di SKU agar tidak ada data sisa
+      agama: null,
+      kewarganegaraan: null,
+      keterangan_lain: null,
+      status_kawin: null,
+      jenis_kelamin: null,
+      golongan_darah: null,
+      pendidikan: null
     }));
 
     onNext();

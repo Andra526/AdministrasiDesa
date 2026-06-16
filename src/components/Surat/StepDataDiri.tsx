@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, User, Briefcase, CalendarDays, Heart, GraduationCap, Droplets, Users, FileText } from 'lucide-react';
+import { ArrowRight, User, Briefcase, CalendarDays, Heart, GraduationCap, Droplets, Users, FileText, Globe, MessageSquare } from 'lucide-react';
 
 export const StepDataDiri = ({ onNext, data, setData }: any) => {
   
@@ -10,6 +10,7 @@ export const StepDataDiri = ({ onNext, data, setData }: any) => {
   const isSKU = data.jenisSurat?.toUpperCase() === 'SKU' || data.jenis_surat?.toUpperCase() === 'SKU';
   const isKTP = data.jenisSurat?.toUpperCase() === 'KTP' || data.jenis_surat?.toUpperCase() === 'KTP';
   const isSKCK = data.jenisSurat?.toUpperCase() === 'SKCK';
+  const isSKTM = data.jenisSurat?.toUpperCase() === 'SKTM';
 
   return (
     <motion.div 
@@ -18,7 +19,6 @@ export const StepDataDiri = ({ onNext, data, setData }: any) => {
       exit={{ x: -20, opacity: 0 }} 
       className="space-y-8"
     >
-      {/* Banner Info Kecil */}
       <div className="bg-blue-50/50 p-4 rounded-2xl text-blue-700 text-[11px] font-bold border border-blue-100 flex items-center gap-3">
         <div className="bg-blue-600 text-white p-1 rounded-md">
           <User size={14} />
@@ -27,13 +27,12 @@ export const StepDataDiri = ({ onNext, data, setData }: any) => {
       </div>
 
       <div className="space-y-6">
-        {/* INPUT UMUM: NAMA & NIK */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2 text-left">
             <label className={labelStyle}>Nama Lengkap Sesuai KTP</label>
             <input 
               type="text" 
-              value={data.nama}
+              value={data.nama || ''}
               onChange={(e) => setData({...data, nama: e.target.value.toUpperCase()})}
               placeholder="NAMA LENGKAP" 
               className={inputStyle} 
@@ -43,7 +42,7 @@ export const StepDataDiri = ({ onNext, data, setData }: any) => {
             <label className={labelStyle}>Nomor Induk Kependudukan (NIK)</label>
             <input 
               type="number" 
-              value={data.nik}
+              value={data.nik || ''}
               onChange={(e) => setData({...data, nik: e.target.value})}
               placeholder="16 DIGIT NIK" 
               className={inputStyle} 
@@ -51,9 +50,33 @@ export const StepDataDiri = ({ onNext, data, setData }: any) => {
           </div>
         </div>
 
-        {/* KONDISIONAL FORM */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2 text-left">
+            <label className={labelStyle}><CalendarDays size={12} className="text-blue-500" /> Tempat, Tanggal Lahir</label>
+            <input type="text" value={data.ttl || ''} onChange={(e) => setData({...data, ttl: e.target.value})} placeholder="Tegal, 10-02-2005" className={inputStyle} />
+          </div>
+          <div className="space-y-2 text-left">
+            <label className={labelStyle}><Briefcase size={12} className="text-blue-500" /> Pekerjaan</label>
+            <input type="text" value={data.pekerjaan || ''} onChange={(e) => setData({...data, pekerjaan: e.target.value})} placeholder="Contoh: Wiraswasta" className={inputStyle} />
+          </div>
+          
+          {/* HANYA MUNCUL JIKA BUKAN SKU */}
+          {!isSKU && (
+            <>
+              <div className="space-y-2 text-left">
+                <label className={labelStyle}><Heart size={12} className="text-blue-500" /> Agama</label>
+                <input type="text" value={data.agama || ''} onChange={(e) => setData({...data, agama: e.target.value})} placeholder="Contoh: Islam" className={inputStyle} />
+              </div>
+              <div className="space-y-2 text-left">
+                <label className={labelStyle}><Globe size={12} className="text-blue-500" /> Kewarganegaraan</label>
+                <input type="text" value={data.kewarganegaraan || ''} onChange={(e) => setData({...data, kewarganegaraan: e.target.value})} placeholder="Contoh: WNI" className={inputStyle} />
+              </div>
+            </>
+          )}
+        </div>
+
         <AnimatePresence mode="wait">
-          {(isSKU || isKTP || isSKCK) && (
+          {(isSKU || isKTP || isSKCK || isSKTM) && (
             <motion.div 
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
@@ -61,42 +84,42 @@ export const StepDataDiri = ({ onNext, data, setData }: any) => {
               className="overflow-hidden space-y-6"
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* TTL - Muncul untuk Semua */}
-                <div className="space-y-2 text-left">
-                  <label className={labelStyle}><CalendarDays size={12} className="text-blue-500" /> Tempat, Tanggal Lahir</label>
-                  <input type="text" value={data.ttl} onChange={(e) => setData({...data, ttl: e.target.value})} placeholder="Tegal, 10-02-2005" className={inputStyle} />
-                </div>
-
-                {/* Pekerjaan - Muncul untuk Semua */}
-                <div className="space-y-2 text-left">
-                  <label className={labelStyle}><Briefcase size={12} className="text-blue-500" /> Pekerjaan</label>
-                  <input type="text" value={data.pekerjaan} onChange={(e) => setData({...data, pekerjaan: e.target.value})} placeholder="Contoh: Wiraswasta" className={inputStyle} />
-                </div>
-
-                {/* INPUT KHUSUS SKCK */}
                 {isSKCK && (
                   <>
-                    <div className="space-y-2 text-left">
-                      <label className={labelStyle}><Heart size={12} className="text-blue-500" /> Agama</label>
-                      <input type="text" value={data.agama} onChange={(e) => setData({...data, agama: e.target.value})} placeholder="Agama" className={inputStyle} />
-                    </div>
-                    <div className="space-y-2 text-left">
-                      <label className={labelStyle}><Users size={12} className="text-blue-500" /> Kewarganegaraan</label>
-                      <input type="text" value={data.kewarganegaraan} onChange={(e) => setData({...data, kewarganegaraan: e.target.value})} placeholder="WNI" className={inputStyle} />
-                    </div>
                     <div className="space-y-2 text-left md:col-span-2">
                       <label className={labelStyle}><FileText size={12} className="text-blue-500" /> Keperluan SKCK</label>
-                      <input type="text" value={data.keperluan} onChange={(e) => setData({...data, keperluan: e.target.value})} placeholder="Contoh: Melamar Pekerjaan" className={inputStyle} />
+                      <input type="text" value={data.keperluan || ''} onChange={(e) => setData({...data, keperluan: e.target.value})} placeholder="Contoh: Melamar Pekerjaan" className={inputStyle} />
+                    </div>
+                    <div className="space-y-2 text-left md:col-span-2">
+                      <label className={labelStyle}><MessageSquare size={12} className="text-blue-500" /> Keterangan Lain</label>
+                      <textarea
+                        value={data.keterangan_lain || ''}
+                        onChange={(e) => setData({...data, keterangan_lain: e.target.value})}
+                        placeholder="Contoh: Bahwa orang tersebut di atas adalah benar – benar penduduk kami yang tidak tersangkut masalah hukum."
+                        className={`${inputStyle} min-h-[100px] resize-none`}
+                      />
                     </div>
                   </>
                 )}
 
-                {/* INPUT KHUSUS KTP */}
+                {isSKTM && (
+                    <div className="space-y-2 text-left md:col-span-2">
+                      <label className={labelStyle}><FileText size={12} className="text-blue-500" /> Keperluan</label>
+                      <input
+                        type="text"
+                        value={data.keperluan || ''}
+                        onChange={(e) => setData({...data, keperluan: e.target.value})}
+                        placeholder="Contoh: Permohonan Pengajuan Living Cost"
+                        className={inputStyle}
+                      />
+                    </div>
+                )}
+
                 {isKTP && (
                   <>
                     <div className="space-y-2 text-left">
                       <label className={labelStyle}><Users size={12} className="text-blue-500" /> Jenis Kelamin</label>
-                      <select className={inputStyle} value={data.jenis_kelamin} onChange={(e) => setData({...data, jenis_kelamin: e.target.value})}>
+                      <select className={inputStyle} value={data.jenis_kelamin || ''} onChange={(e) => setData({...data, jenis_kelamin: e.target.value})}>
                         <option value="">Pilih...</option>
                         <option value="Laki-laki">Laki-laki</option>
                         <option value="Perempuan">Perempuan</option>
@@ -104,19 +127,15 @@ export const StepDataDiri = ({ onNext, data, setData }: any) => {
                     </div>
                     <div className="space-y-2 text-left">
                       <label className={labelStyle}><Droplets size={12} className="text-blue-500" /> Golongan Darah</label>
-                      <input type="text" value={data.golongan_darah} onChange={(e) => setData({...data, golongan_darah: e.target.value})} placeholder="-" className={inputStyle} />
-                    </div>
-                    <div className="space-y-2 text-left">
-                      <label className={labelStyle}><Heart size={12} className="text-blue-500" /> Agama</label>
-                      <input type="text" value={data.agama} onChange={(e) => setData({...data, agama: e.target.value})} placeholder="Contoh: Islam" className={inputStyle} />
+                      <input type="text" value={data.golongan_darah || ''} onChange={(e) => setData({...data, golongan_darah: e.target.value})} placeholder="-" className={inputStyle} />
                     </div>
                     <div className="space-y-2 text-left">
                       <label className={labelStyle}><GraduationCap size={12} className="text-blue-500" /> Pendidikan</label>
-                      <input type="text" value={data.pendidikan} onChange={(e) => setData({...data, pendidikan: e.target.value})} placeholder="Tamat SD/Sederajat" className={inputStyle} />
+                      <input type="text" value={data.pendidikan || ''} onChange={(e) => setData({...data, pendidikan: e.target.value})} placeholder="Tamat SD/Sederajat" className={inputStyle} />
                     </div>
-                    <div className="space-y-2 text-left md:col-span-2">
+                    <div className="space-y-2 text-left">
                       <label className={labelStyle}>Status Perkawinan</label>
-                      <select className={inputStyle} value={data.status_kawin} onChange={(e) => setData({...data, status_kawin: e.target.value})}>
+                      <select className={inputStyle} value={data.status_kawin || ''} onChange={(e) => setData({...data, status_kawin: e.target.value})}>
                         <option value="Belum Kawin">Belum Kawin</option>
                         <option value="Kawin">Kawin</option>
                         <option value="Cerai Hidup">Cerai Hidup</option>
@@ -130,11 +149,10 @@ export const StepDataDiri = ({ onNext, data, setData }: any) => {
           )}
         </AnimatePresence>
 
-        {/* Alamat */}
         <div className="space-y-2 text-left">
           <label className={labelStyle}>Alamat Domisili (Sesuai KTP)</label>
           <textarea 
-            value={data.alamat}
+            value={data.alamat || ''}
             onChange={(e) => setData({...data, alamat: e.target.value})}
             placeholder="Contoh: Banjaranyar RT 005/ RW 002" 
             className={`${inputStyle} min-h-[100px] resize-none`} 
@@ -142,7 +160,6 @@ export const StepDataDiri = ({ onNext, data, setData }: any) => {
         </div>
       </div>
 
-      {/* Action Button */}
       <button 
         onClick={onNext} 
         disabled={!data.nama || !data.nik}
@@ -156,4 +173,4 @@ export const StepDataDiri = ({ onNext, data, setData }: any) => {
       </p>
     </motion.div>
   );
-};  
+};
