@@ -97,9 +97,6 @@ const AdminDashboard = () => {
     doc.text(judulText, pageWidth / 2, 50, { align: "center" });
     const judulWidth = doc.getTextWidth(judulText);
     doc.line(pageWidth / 2 - judulWidth / 2, 51.5, pageWidth / 2 + judulWidth / 2, 51.5);
-    doc.setFont("helvetica", "normal");
-    doc.text(`Nomor: ${item.id?.substring(0, 8) || 'XXXX'}/KDS/${new Date().getFullYear()}`, pageWidth / 2, 57, { align: "center" });
-
     doc.setFontSize(11);
     doc.text("Yang bertanda tangan di bawah ini Kepala Desa Digital menerangkan bahwa:", 25, 70);
 
